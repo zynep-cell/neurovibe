@@ -3,59 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroVibe - Art & Stats</title>
+    <title>NeuroVibe - Art & Mind</title>
     <style>
         :root { --bg: #fdfbfb; --accent: #333; --gold: #d4af37; --success: #4CAF50; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; color: #444; }
         
         .container { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 50px rgba(0,0,0,0.06); width: 100%; max-width: 480px; text-align: center; position: relative; }
 
-        /* Başlık ve Hava Durumu */
         .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 12px; margin-bottom: 15px; }
         .profile-name { font-weight: bold; border: none; font-size: 1rem; color: var(--accent); outline: none; border-bottom: 1px dashed #ccc; width: 120px; background: transparent; }
 
-        /* Çizim Alanı */
+        #celebration { position: absolute; top: -15px; left: 0; width: 100%; color: var(--gold); font-weight: bold; display: none; text-align: center; z-index: 100; pointer-events: none; }
+
         .canvas-container { position: relative; width: 280px; height: 280px; margin: 10px auto; border-radius: 50%; overflow: hidden; background: white; border: 4px solid #f9f9f9; box-shadow: inset 0 0 20px rgba(0,0,0,0.03); }
         canvas { cursor: crosshair; touch-action: none; }
 
-        .controls-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .tool-btn { padding: 8px; border: none; border-radius: 10px; cursor: pointer; background: #eee; font-size: 11px; transition: 0.2s; }
-        .tool-btn.active { background: var(--accent); color: white; }
-        
         .brush-settings { margin: 10px 0; display: flex; align-items: center; gap: 10px; font-size: 12px; }
         input[type=range] { flex: 1; accent-color: var(--accent); cursor: pointer; }
 
-        /* Hava Durumu */
-        .weather-grid { display: flex; justify-content: space-around; margin: 10px 0; font-size: 22px; }
+        .controls-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 15px; }
+        .tool-btn { padding: 8px 2px; border: none; border-radius: 10px; cursor: pointer; background: #eee; font-size: 18px; transition: 0.2s; }
+        .tool-btn.active { background: var(--accent); }
+        
+        .weather-grid { display: flex; justify-content: space-around; margin: 10px 0; font-size: 24px; }
         .weather-icon { cursor: pointer; padding: 5px; border-radius: 50%; transition: 0.3s; }
         .weather-icon.active { background: #fff3cd; transform: scale(1.2); }
 
-        /* Alışkanlıklar (Ekleme Geri Geldi) */
-        .habit-manager { text-align: left; margin: 15px 0; }
-        .habit-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-        .habit-chip { background: #f0f0f0; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; display: flex; align-items: center; }
-        .habit-chip.active { background: #e8f5e9; border: 1px solid var(--success); color: #2e7d32; }
-        .add-habit-box { display: flex; gap: 5px; margin-top: 10px; }
-        .add-habit-box input { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #eee; font-size: 12px; }
+        /* Stres Ölçeği (Geri Geldi!) */
+        .stress-box { background: #fcfcfc; padding: 12px; border-radius: 20px; margin: 15px 0; border: 1px solid #f0f0f0; }
+        #stressLabel { font-size: 13px; font-weight: bold; display: block; margin-bottom: 8px; }
 
-        /* İstatistik Paneli */
-        .stats-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; background: #fcfcfc; padding: 15px; border-radius: 20px; border: 1px solid #eee; }
+        /* İstatistik Paneli (Onarıldı!) */
+        .stats-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; background: #fcfcfc; padding: 15px; border-radius: 20px; border: 1px solid #eee; }
         .stat-item { text-align: center; }
         .stat-val { display: block; font-size: 18px; font-weight: bold; color: var(--accent); }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; }
 
-        /* Günü Mühürle Butonu */
-        #save-btn { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 15px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .habit-manager { text-align: left; margin: 15px 0; }
+        .habit-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        .habit-chip { background: #f0f0f0; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; border: 1px solid transparent; }
+        .habit-chip.active { background: #e8f5e9; border-color: var(--success); color: #2e7d32; }
+        .add-habit-box { display: flex; gap: 5px; }
+        .add-habit-box input { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #eee; font-size: 12px; }
 
-        /* Zaman Tüneli (Sanatsal Galeri) */
-        .history { width: 100%; max-width: 480px; margin-top: 30px; }
-        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .log-card { background: white; padding: 10px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); text-align: center; position: relative; border: 1px solid #f0f0f0; }
-        .log-card img { width: 100%; border-radius: 50%; margin-bottom: 8px; border: 2px solid #f9f9f9; }
-        .log-info { font-size: 10px; color: #999; }
-        .delete-log { position: absolute; top: 5px; right: 8px; color: #ddd; cursor: pointer; font-size: 14px; }
-        
-        #celebration { position: absolute; top: -15px; left: 0; width: 100%; color: var(--gold); font-weight: bold; display: none; text-align: center; z-index: 10; pointer-events: none; }
+        #save-btn { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 15px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+
+        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 15px; }
+        .log-card { background: white; padding: 10px; border-radius: 20px; border: 1px solid #f0f0f0; position: relative; }
+        .log-card img { width: 100%; border-radius: 50%; }
+        .delete-log { position: absolute; top: 5px; right: 8px; color: #ddd; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -65,7 +61,7 @@
         
         <div class="header-row">
             <div>👋 <input type="text" id="userName" class="profile-name" placeholder="İsmin?"></div>
-            <div id="clock" style="font-size: 12px; color: #aaa; font-weight: bold;"></div>
+            <div id="clock" style="font-size: 12px; color: #aaa;"></div>
         </div>
         
         <div class="canvas-container">
@@ -75,16 +71,16 @@
         <div class="brush-settings">
             <input type="color" id="colorPicker" value="#FFD700">
             <input type="range" id="sizeRange" min="1" max="60" value="15">
-            <button class="tool-btn" onclick="undo()" title="Geri Al">↩️</button>
-            <button class="tool-btn" onclick="clearCanvas()" title="Temizle">🗑️</button>
+            <button onclick="undo()" style="border:none; background:none; cursor:pointer; font-size:20px;">↩️</button>
+            <button onclick="clearCanvas()" style="border:none; background:none; cursor:pointer; font-size:20px;">🗑️</button>
         </div>
 
         <div class="controls-grid">
-            <button class="tool-btn active" id="btn-sulu" onclick="setTool('sulu')">💧 Sulu</button>
-            <button class="tool-btn" id="btn-puskurtme" onclick="setTool('puskurtme')">💨 Püskürt</button>
-            <button class="tool-btn" id="btn-murekkep" onclick="setTool('murekkep')">🖋️ Mürekkep</button>
-            <button class="tool-btn" id="btn-kursun" onclick="setTool('kursun')">✏️ Kurşun</button>
-            <button class="tool-btn" id="btn-eraser" onclick="setTool('eraser')">🧽 Silgi</button>
+            <button class="tool-btn active" id="btn-sulu" onclick="setTool('sulu')" title="Sulu">💧</button>
+            <button class="tool-btn" id="btn-puskurtme" onclick="setTool('puskurtme')" title="Püskürt">💨</button>
+            <button class="tool-btn" id="btn-murekkep" onclick="setTool('murekkep')" title="Mürekkep">🖋️</button>
+            <button class="tool-btn" id="btn-kursun" onclick="setTool('kursun')" title="Kurşun">✏️</button>
+            <button class="tool-btn" id="btn-eraser" onclick="setTool('eraser')" title="Silgi">🧽</button>
         </div>
 
         <div class="weather-grid">
@@ -95,19 +91,26 @@
             <span class="weather-icon" onclick="setWeather('stormy', '⚡')">⚡</span>
             <span class="weather-icon" onclick="setWeather('windy', '🌬️')">🌬️</span>
         </div>
-        <div id="weather-tip" style="font-size: 11px; margin-bottom: 10px; color: var(--gold); font-style: italic;"></div>
+        <div id="weather-tip" style="font-size: 11px; margin-bottom: 5px; color: var(--gold); font-style: italic;"></div>
 
+        <!-- Stres Ölçeği (Buradayım!) -->
+        <div class="stress-box">
+            <span id="stressLabel">Durum: İyiyim (0)</span>
+            <input type="range" id="stressRange" min="0" max="10" value="0" oninput="updateStress(this.value)">
+        </div>
+
+        <!-- İstatistik Paneli -->
         <div class="stats-panel">
-            <div class="stat-item"><span class="stat-val" id="count-daily">0</span><span class="stat-label">Günlük</span></div>
-            <div class="stat-item"><span class="stat-val" id="count-habit">0%</span><span class="stat-label">Haftalık Başarı</span></div>
+            <div class="stat-item"><span class="stat-val" id="count-daily">0</span><span class="stat-label">Toplam</span></div>
+            <div class="stat-item"><span class="stat-val" id="count-habit">0%</span><span class="stat-label">Başarı</span></div>
             <div class="stat-item"><span class="stat-val" id="avg-stress">0</span><span class="stat-label">Ort. Stres</span></div>
         </div>
 
         <div class="habit-manager">
             <div id="habitList" class="habit-list"></div>
             <div class="add-habit-box">
-                <input type="text" id="newHabitInput" placeholder="Yeni alışkanlık ekle...">
-                <button onclick="addNewHabit()" class="tool-btn" style="background:var(--accent); color:white;">+</button>
+                <input type="text" id="newHabitInput" placeholder="Alışkanlık ekle...">
+                <button onclick="addNewHabit()" style="background:var(--accent); color:white; border:none; padding:10px; border-radius:10px; cursor:pointer;">+</button>
             </div>
         </div>
 
@@ -115,8 +118,8 @@
         <button id="save-btn" onclick="saveData()">Günü Mühürle</button>
     </div>
 
-    <div class="history">
-        <h3 style="text-align: left; margin-left: 10px;">Sanatsal Geçmiş</h3>
+    <div class="history" style="width:100%; max-width:480px; margin-top:20px;">
+        <h3 style="text-align: left;">Sanatsal Geçmiş</h3>
         <div id="logGrid" class="log-grid"></div>
     </div>
 
@@ -128,7 +131,6 @@
     let undoStack = [];
     let selectedWeather = { icon: '✨' };
 
-    // Çizim Motoru
     function saveState() { if (undoStack.length > 30) undoStack.shift(); undoStack.push(canvas.toDataURL()); }
     function undo() { if (undoStack.length > 0) { let img = new Image(); img.src = undoStack.pop(); img.onload = () => { ctx.clearRect(0,0,280,280); ctx.drawImage(img,0,0); }; } }
     function clearCanvas() { saveState(); ctx.clearRect(0,0,280,280); }
@@ -140,9 +142,7 @@
         const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
         const color = document.getElementById('colorPicker').value;
         const size = document.getElementById('sizeRange').value;
-
         ctx.lineCap = 'round'; ctx.strokeStyle = color; ctx.lineWidth = size;
-
         if (currentTool === 'eraser') { ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 30; }
         else if (currentTool === 'sulu') { ctx.globalAlpha = 0.1; ctx.lineWidth = size * 1.5; }
         else if (currentTool === 'murekkep') { ctx.globalAlpha = 0.8; ctx.lineWidth = size * 0.4; }
@@ -160,7 +160,6 @@
     window.addEventListener('mouseup', () => { painting = false; ctx.beginPath(); });
     canvas.addEventListener('touchstart', (e) => { saveState(); painting = true; draw(e); e.preventDefault(); });
     canvas.addEventListener('touchmove', (e) => { draw(e); e.preventDefault(); });
-    canvas.addEventListener('touchend', () => { painting = false; ctx.beginPath(); });
 
     function setTool(t) {
         currentTool = t;
@@ -168,16 +167,19 @@
         document.getElementById('btn-' + t)?.classList.add('active');
     }
 
-    // Hava Durumu
     const tips = { sunny: "Güneş kremini unutma, D vitamini al! ☀️", cloudy: "Hava yumuşak, biraz D vitamini hala orada! ⛅", moon: "Gökyüzüne, yıldızlara bakmayı unutma... 🌙", rainy: "Şemsiye kullan ve yağmur sesiyle sakinleş. 🌧️", stormy: "Unutma, her fırtına sonrası hava sakinleşir. ⚡", windy: "Kendini editteymiş gibi hayal et ;) 🌬️" };
     function setWeather(type, icon) {
         selectedWeather = { type, icon };
         document.querySelectorAll('.weather-icon').forEach(i => i.classList.remove('active'));
         event.target.classList.add('active');
-        document.getElementById('weather-tip').innerText = tips[type] || "";
+        document.getElementById('weather-tip').innerText = tips[type];
     }
 
-    // Alışkanlıklar (Ekleme & Silme Fonksiyonları Dahil)
+    function updateStress(val) {
+        let texts = ["İyiyim", "Ucundan stresli", "Ucundan stresli", "Az stresli", "Az stresli", "Nötr", "Giderek artıyor", "Giderek artıyor", "Stresliyim", "Stresliyim", "WOW, Az Sakinleş!"];
+        document.getElementById('stressLabel').innerText = `Durum: ${texts[val]} (${val})`;
+    }
+
     let habits = JSON.parse(localStorage.getItem('neuro_habits')) || ["🦴 Lenf Vuruşları"];
     let activeHabits = [];
 
@@ -187,10 +189,10 @@
         habits.forEach((h, i) => {
             const div = document.createElement('div');
             div.className = `habit-chip ${activeHabits.includes(h) ? 'active' : ''}`;
-            div.innerHTML = `${h} <span onclick="deleteHabit(event, ${i})" style="margin-left:8px; opacity:0.5">×</span>`;
+            div.innerHTML = `${h} <span onclick="deleteHabit(event, ${i})" style="margin-left:5px">×</span>`;
             div.onclick = () => {
                 if (activeHabits.includes(h)) activeHabits = activeHabits.filter(a => a !== h);
-                else { activeHabits.push(h); showCelebration(); }
+                else { activeHabits.push(h); document.getElementById('celebration').style.display='block'; setTimeout(()=>document.getElementById('celebration').style.display='none', 2000); }
                 renderHabits();
             };
             list.appendChild(div);
@@ -198,39 +200,19 @@
     }
 
     function addNewHabit() {
-        const val = document.getElementById('newHabitInput').value.trim();
-        if (val && habits.length < 10) {
-            habits.push(val);
-            localStorage.setItem('neuro_habits', JSON.stringify(habits));
-            document.getElementById('newHabitInput').value = "";
-            renderHabits();
-        }
+        const v = document.getElementById('newHabitInput').value.trim();
+        if(v && habits.length < 10) { habits.push(v); localStorage.setItem('neuro_habits', JSON.stringify(habits)); renderHabits(); document.getElementById('newHabitInput').value=""; }
     }
+    function deleteHabit(e, i) { e.stopPropagation(); habits.splice(i,1); localStorage.setItem('neuro_habits', JSON.stringify(habits)); renderHabits(); }
 
-    function deleteHabit(e, index) {
-        e.stopPropagation();
-        habits.splice(index, 1);
-        localStorage.setItem('neuro_habits', JSON.stringify(habits));
-        renderHabits();
-    }
-
-    function showCelebration() {
-        const cel = document.getElementById('celebration');
-        cel.style.display = 'block'; setTimeout(() => cel.style.display = 'none', 2000);
-    }
-
-    // Veri İşleme & İstatistik
     function calculateStats() {
         const logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
         document.getElementById('count-daily').innerText = logs.length;
-        
-        if (logs.length > 0) {
-            const avgStress = (logs.reduce((acc, curr) => acc + parseInt(curr.stress || 0), 0) / logs.length).toFixed(1);
-            document.getElementById('avg-stress').innerText = avgStress;
-            
-            // Haftalık başarı (Basit bir oran)
-            const habitScore = Math.min(100, (logs.filter(l => l.habits && l.habits.length > 0).length / logs.length * 100).toFixed(0));
-            document.getElementById('count-habit').innerText = `%${habitScore}`;
+        if(logs.length > 0) {
+            const avg = (logs.reduce((s, c) => s + parseInt(c.stress), 0) / logs.length).toFixed(1);
+            document.getElementById('avg-stress').innerText = avg;
+            const success = (logs.filter(l => l.habits && l.habits.length > 0).length / logs.length * 100).toFixed(0);
+            document.getElementById('count-habit').innerText = `%${success}`;
         }
     }
 
@@ -239,9 +221,8 @@
             id: Date.now(),
             user: document.getElementById('userName').value || "Gezgin",
             time: new Date().toLocaleDateString('tr-TR'),
-            fullTime: new Date().toLocaleString('tr-TR'),
             weather: selectedWeather.icon,
-            stress: 5, // Varsayılan orta değer veya ölçekten alınabilir
+            stress: document.getElementById('stressRange').value,
             habits: [...activeHabits],
             image: canvas.toDataURL(),
             note: document.getElementById('note').value
@@ -249,9 +230,8 @@
         let logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
         logs.unshift(entry);
         localStorage.setItem('neuro_logs', JSON.stringify(logs));
-        renderLogs(); calculateStats();
-        clearCanvas(); document.getElementById('note').value = "";
-        activeHabits = []; renderHabits();
+        renderLogs(); calculateStats(); clearCanvas();
+        document.getElementById('note').value = ""; activeHabits = []; renderHabits();
     }
 
     function renderLogs() {
@@ -261,12 +241,7 @@
         logs.forEach(item => {
             const card = document.createElement('div');
             card.className = 'log-card';
-            card.innerHTML = `
-                <div class="delete-log" onclick="deleteLog(${item.id})">×</div>
-                <img src="${item.image}">
-                <div style="font-weight:bold; font-size:11px">${item.time} ${item.weather}</div>
-                <div class="log-info">${item.habits.length} Alışkanlık</div>
-            `;
+            card.innerHTML = `<div class="delete-log" onclick="deleteLog(${item.id})">×</div><img src="${item.image}"><div style="font-size:10px; font-weight:bold;">${item.time} ${item.weather}</div>`;
             grid.appendChild(card);
         });
     }
@@ -277,7 +252,6 @@
         renderLogs(); calculateStats();
     }
 
-    // Init
     document.getElementById('userName').value = localStorage.getItem('neuro_username') || "";
     document.getElementById('userName').onchange = (e) => localStorage.setItem('neuro_username', e.target.value);
     setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}); }, 1000);
