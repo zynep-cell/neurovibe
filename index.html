@@ -1,179 +1,233 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroVibe - Creative Mode</title>
+    <title>NeuroVibe - Personal Ecosystem</title>
     <style>
-        :root { --bg: #f8f9fa; --joy: #FFD700; --calm: #87CEEB; --focus: #98FB98; --tired: #A9A9A9; }
+        :root { --bg: #f4f7f6; --accent: #333; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
         
-        .container { background: white; padding: 20px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); width: 100%; max-width: 420px; text-align: center; position: relative; }
+        .container { background: white; padding: 20px; border-radius: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); width: 100%; max-width: 450px; text-align: center; }
 
-        /* Çizim Alanı (Küre) */
-        .canvas-container { position: relative; width: 250px; height: 250px; margin: 10px auto; border-radius: 50%; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,0.1); background: white; border: 2px solid #eee; }
+        /* Çizim Alanı */
+        .canvas-container { position: relative; width: 280px; height: 280px; margin: 10px auto; border-radius: 50%; overflow: hidden; background: white; border: 3px solid #eee; }
         canvas { cursor: crosshair; touch-action: none; }
 
-        /* Fırça Kontrolleri */
-        .controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 15px 0; padding: 10px; background: #f0f0f0; border-radius: 15px; }
-        .tool-btn { padding: 8px 12px; border: none; border-radius: 8px; cursor: pointer; background: white; font-size: 12px; transition: 0.2s; }
-        .tool-btn.active { background: #333; color: white; }
-        
-        .color-palette { display: flex; gap: 8px; margin-bottom: 10px; }
-        .color-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .draw-tools { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
+        .tool-btn { padding: 6px 12px; border: none; border-radius: 8px; cursor: pointer; background: #eee; font-size: 12px; }
+        .tool-btn.active { background: var(--accent); color: white; }
 
-        /* Kutlama Animasyonu */
-        #celebration { position: absolute; top: 10px; width: 100%; color: #d4af37; font-weight: bold; font-size: 18px; display: none; z-index: 10; animation: bounce 0.5s infinite alternate; pointer-events: none; }
-        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+        /* Stres Ölçeği */
+        .stress-slider { margin: 20px 0; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 15px; }
+        #stressValue { font-weight: bold; float: right; }
+        input[type=range] { width: 100%; cursor: pointer; }
 
-        /* Form Elemanları */
-        textarea { width: 100%; border-radius: 12px; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; margin-top: 10px; font-family: inherit; }
-        .habit-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0; background: #fff9e6; padding: 12px; border-radius: 15px; cursor: pointer; border: 1px dashed #ffd700; }
-        #save-btn { background: #333; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 16px; }
+        /* Alışkanlık Yönetimi */
+        .habit-section { text-align: left; margin: 20px 0; }
+        .habit-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+        .habit-chip { background: #eee; padding: 8px 12px; border-radius: 20px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .habit-chip.active { background: #98FB98; border: 1px solid #4CAF50; }
+        .add-habit-box { display: flex; gap: 5px; margin-top: 10px; }
+        .add-habit-box input { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; }
 
-        .history { width: 100%; max-width: 420px; margin-top: 25px; }
-        .log-item { background: white; padding: 15px; border-radius: 15px; margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); border-left: 8px solid #333; position: relative; }
-        .delete-btn { position: absolute; right: 15px; top: 15px; color: #ff4d4d; cursor: pointer; font-size: 12px; }
+        textarea { width: 100%; border-radius: 12px; border: 1px solid #ddd; padding: 12px; box-sizing: border-box; margin: 10px 0; font-family: inherit; }
+        #save-btn { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+
+        .log-item { background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: left; position: relative; border-left: 5px solid #333; }
+        .delete-btn { position: absolute; right: 15px; top: 15px; color: red; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div id="celebration">✨ HARİKASIN. DEVAM ET. ✨</div>
-        <h2 style="margin-top:0">NeuroVibe</h2>
+        <h2>NeuroVibe</h2>
         
         <div class="canvas-container">
-            <canvas id="paintCanvas" width="250" height="250"></canvas>
+            <canvas id="paintCanvas" width="280" height="280"></canvas>
         </div>
 
-        <div class="controls">
-            <div class="color-palette">
-                <div class="color-dot" style="background:var(--joy)" onclick="setColor('#FFD700')"></div>
-                <div class="color-dot" style="background:var(--calm)" onclick="setColor('#87CEEB')"></div>
-                <div class="color-dot" style="background:var(--focus)" onclick="setColor('#98FB98')"></div>
-                <div class="color-dot" style="background:var(--tired)" onclick="setColor('#A9A9A9')"></div>
-                <input type="color" id="customColor" onchange="setColor(this.value)" style="width:25px; height:25px; border:none; padding:0; background:none;">
-            </div>
-            
-            <button class="tool-btn active" id="brush-sulu" onclick="setTool('sulu')">Suluboya</button>
-            <button class="tool-btn" id="brush-puskurtme" onclick="setTool('puskurtme')">Püskürtme</button>
+        <div class="draw-tools">
+            <input type="color" id="colorPicker" value="#FFD700" title="Renk Seç">
+            <button class="tool-btn active" onclick="setTool('sulu')">Sulu</button>
+            <button class="tool-btn" onclick="setTool('puskurtme')">Püskürtme</button>
             <button class="tool-btn" onclick="setTool('eraser')">Silgi</button>
-            <input type="range" id="sizeRange" min="5" max="50" value="20" title="Fırça Boyutu">
+            <button class="tool-btn" style="background:#ffcccc" onclick="undo()">Geri Al</button>
+            <button class="tool-btn" style="background:#ddd" onclick="clearCanvas()">Temizle</button>
         </div>
 
-        <div class="habit-row" onclick="toggleHabit()">
-            <input type="checkbox" id="habit1" style="transform: scale(1.3);"> 
-            <strong>Lenf Vuruşları Yapıldı</strong>
+        <div class="stress-slider">
+            <label>Stres Seviyesi: <span id="stressLabel">Nötr (5)</span></label>
+            <input type="range" id="stressRange" min="0" max="10" value="5" oninput="updateStress(this.value)">
+        </div>
+
+        <div class="habit-section">
+            <label><b>Alışkanlıklarım (Max 10)</b></label>
+            <div id="habitList" class="habit-list"></div>
+            <div class="add-habit-box" id="addHabitArea">
+                <input type="text" id="newHabitName" placeholder="Örn: 🧘 Meditasyon">
+                <button onclick="addNewHabit()" class="tool-btn">+</button>
+            </div>
         </div>
 
         <textarea id="note" maxlength="300" rows="2" placeholder="Bugünün nasıldı?"></textarea>
-        <button id="save-btn" onclick="saveData()" style="margin-top:10px">Günü Mühürle</button>
+        <button id="save-btn" onclick="saveData()">Günü Mühürle</button>
     </div>
 
-    <div class="history" id="history"></div>
+    <div id="history" style="width:100%; max-width:450px; margin-top:20px;"></div>
 
 <script>
     const canvas = document.getElementById('paintCanvas');
     const ctx = canvas.getContext('2d');
     let painting = false;
     let currentTool = 'sulu';
-    let currentColor = '#FFD700';
+    let undoStack = [];
 
-    function startPosition(e) { painting = true; draw(e); }
-    function finishedPosition() { painting = false; ctx.beginPath(); }
+    // Çizim Fonksiyonları
+    function saveState() {
+        if (undoStack.length > 20) undoStack.shift();
+        undoStack.push(canvas.toDataURL());
+    }
+
+    function undo() {
+        if (undoStack.length > 0) {
+            let img = new Image();
+            img.src = undoStack.pop();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+        }
+    }
+
+    function clearCanvas() {
+        saveState();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function startPosition(e) { 
+        saveState();
+        painting = true; 
+        draw(e); 
+    }
 
     function draw(e) {
         if (!painting) return;
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX || e.touches[0].clientX) - rect.left;
         const y = (e.clientY || e.touches[0].clientY) - rect.top;
-        const size = document.getElementById('sizeRange').value;
+        const color = document.getElementById('colorPicker').value;
 
-        ctx.lineWidth = size;
         ctx.lineCap = 'round';
-
         if (currentTool === 'eraser') {
             ctx.globalAlpha = 1.0;
             ctx.strokeStyle = '#ffffff';
-            ctx.lineTo(x, y);
-            ctx.stroke();
+            ctx.lineWidth = 30;
         } else if (currentTool === 'sulu') {
-            ctx.globalAlpha = 0.1; // Katmanlı suluboya etkisi
-            ctx.strokeStyle = currentColor;
-            ctx.lineTo(x, y);
-            ctx.stroke();
+            ctx.globalAlpha = 0.1;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 20;
         } else if (currentTool === 'puskurtme') {
-            ctx.globalAlpha = 0.5;
-            ctx.fillStyle = currentColor;
-            for (let i = 0; i < 20; i++) {
-                const offset = (Math.random() - 0.5) * size * 2;
-                const r = Math.random() * 2;
-                ctx.fillRect(x + offset, y + (Math.random() - 0.5) * size * 2, r, r);
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.4;
+            for(let i=0; i<15; i++) {
+                ctx.fillRect(x + (Math.random()-0.5)*30, y + (Math.random()-0.5)*30, 2, 2);
             }
+            return;
         }
+        ctx.lineTo(x, y);
+        ctx.stroke();
         ctx.beginPath();
         ctx.moveTo(x, y);
     }
 
     canvas.addEventListener('mousedown', startPosition);
-    canvas.addEventListener('mouseup', finishedPosition);
+    canvas.addEventListener('mouseup', () => { painting = false; ctx.beginPath(); });
     canvas.addEventListener('mousemove', draw);
     canvas.addEventListener('touchstart', startPosition);
-    canvas.addEventListener('touchend', finishedPosition);
+    canvas.addEventListener('touchend', () => { painting = false; ctx.beginPath(); });
     canvas.addEventListener('touchmove', draw);
 
-    function setTool(tool) {
-        currentTool = tool;
-        document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
-        if(tool !== 'eraser') document.getElementById('brush-' + tool).classList.add('active');
+    function setTool(t) { 
+        currentTool = t; 
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
     }
 
-    function setColor(color) { 
-        currentColor = color; 
-        if(currentTool === 'eraser') setTool('sulu');
+    // Stres Ölçeği
+    function updateStress(val) {
+        let text = "";
+        if (val <= 2) text = "Şiddetli Stres (0-2)";
+        else if (val <= 4) text = "Stresli (3-4)";
+        else if (val <= 5) text = "Nötr (5)";
+        else if (val <= 7) text = "İdare Eder (6-7)";
+        else text = "İyi & Stressiz (8-10)";
+        document.getElementById('stressLabel').innerText = `${text} (${val})`;
     }
 
-    function toggleHabit() {
-        const cb = document.getElementById('habit1');
-        cb.checked = !cb.checked;
-        if(cb.checked) {
-            document.getElementById('celebration').style.display = 'block';
-            setTimeout(() => document.getElementById('celebration').style.display = 'none', 3000);
+    // Alışkanlık Yönetimi
+    let habits = JSON.parse(localStorage.getItem('my_habits')) || ["💧 Su İçmek", "🦴 Lenf Vuruşları"];
+    let activeHabits = [];
+
+    function renderHabits() {
+        const list = document.getElementById('habitList');
+        list.innerHTML = "";
+        habits.forEach(h => {
+            const div = document.createElement('div');
+            div.className = `habit-chip ${activeHabits.includes(h) ? 'active' : ''}`;
+            div.innerText = h;
+            div.onclick = () => {
+                if (activeHabits.includes(h)) activeHabits = activeHabits.filter(a => a !== h);
+                else activeHabits.push(h);
+                renderHabits();
+            };
+            list.appendChild(div);
+        });
+        document.getElementById('addHabitArea').style.display = habits.length >= 10 ? 'none' : 'flex';
+    }
+
+    function addNewHabit() {
+        const name = document.getElementById('newHabitName').value;
+        if (name && habits.length < 10) {
+            habits.push(name);
+            localStorage.setItem('my_habits', JSON.stringify(habits));
+            document.getElementById('newHabitName').value = "";
+            renderHabits();
         }
     }
 
     function saveData() {
-        const note = document.getElementById('note').value;
-        const habit = document.getElementById('habit1').checked;
-        const canvasData = canvas.toDataURL(); // Çizimi kaydeder
         const entry = {
             id: Date.now(),
             time: new Date().toLocaleString('tr-TR'),
-            note, habit, image: canvasData
+            stress: document.getElementById('stressRange').value,
+            note: document.getElementById('note').value,
+            habits: [...activeHabits],
+            image: canvas.toDataURL()
         };
-
         let logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
         logs.unshift(entry);
         localStorage.setItem('neuro_logs', JSON.stringify(logs));
         renderLogs();
-        // Temizle
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        document.getElementById('note').value = '';
+        clearCanvas();
+        document.getElementById('note').value = "";
+        activeHabits = [];
+        renderHabits();
     }
 
     function renderLogs() {
         const container = document.getElementById('history');
         const logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
-        container.innerHTML = '<h3>Geçmiş Kayıtlar</h3>';
+        container.innerHTML = "<h3>Günlük Kayıtları</h3>";
         logs.forEach(item => {
             const div = document.createElement('div');
             div.className = 'log-item';
             div.innerHTML = `
                 <div class="delete-btn" onclick="deleteLog(${item.id})">Sil</div>
-                <small>${item.time}</small>
-                <div style="margin:10px 0"><img src="${item.image}" width="80" style="border-radius:50%; border:1px solid #eee"></div>
-                <div>${item.habit ? '✅ Lenf Vuruşları' : '❌ Alışkanlık Eksik'}</div>
-                <div style="font-size:13px; color:#666; margin-top:5px">"${item.note}"</div>
+                <small>${item.time}</small><br>
+                <b>Stres: ${item.stress}/10</b>
+                <div style="margin:10px 0"><img src="${item.image}" width="70" style="border-radius:50%; border:1px solid #eee"></div>
+                <div style="font-size:12px">${item.habits.map(h => '✅'+h).join(' ')}</div>
+                <div style="margin-top:5px; font-style:italic">"${item.note}"</div>
             `;
             container.appendChild(div);
         });
@@ -185,6 +239,7 @@
         renderLogs();
     }
 
+    renderHabits();
     renderLogs();
 </script>
 </body>
