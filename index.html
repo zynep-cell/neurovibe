@@ -3,102 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroVibe - Alışkanlık Takibi</title>
+    <title>NeuroVibe - Kişisel Ekosistem</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; background: #f0f2f5; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; text-align: center; }
-        
-        /* Duygu Küresi */
-        #sphere { width: 100px; height: 100px; border-radius: 50%; background: #eee; margin: 20px auto; transition: 0.5s; border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        
-        .btn-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .dot:hover { transform: scale(1.2); }
+        :root {
+            --bg: #fdfbfb;
+            --text: #444;
+            --joy: #FFD700;
+            --calm: #87CEEB;
+            --focus: #98FB98;
+            --tired: #A9A9A9;
+        }
 
-        /* Alışkanlıklar Bölümü */
-        .habits { text-align: left; margin: 20px 0; border-top: 1px solid #eee; padding-top: 15px; }
-        .habit-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px; }
-
-        #save-btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; padding: 20px; }
         
-        /* Kayıt Listesi */
-        #log-container { margin-top: 20px; width: 350px; }
-        .log-item { background: white; padding: 10px; border-radius: 8px; margin-bottom: 5px; font-size: 12px; display: flex; justify-content: space-between; border-left: 5px solid #ccc; }
+        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; position: relative; }
+
+        /* Suluboya Etkili Küre */
+        #sphere { 
+            width: 120px; height: 120px; border-radius: 50%; background: #eee; 
+            margin: 20px auto; transition: all 1s ease-in-out; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            filter: blur(2px); /* Püskürme/Suluboya yumuşaklığı */
+            position: relative;
+        }
+
+        .sphere-inner {
+            position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            background: radial-gradient(circle, transparent 30%, rgba(255,255,255,0.8) 100%);
+        }
+
+        .btn-group { display: flex; justify-content: space-around; margin: 20px 0; font-size: 10px; }
+        .emotion-btn { cursor: pointer; text-align: center; transition: 0.3s; }
+        .dot { width: 35px; height: 35px; border-radius: 50%; margin: 0 auto 5px; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+        .emotion-btn:hover { transform: scale(1.1); }
+
+        /* Yazı Alanı ve Alışkanlık */
+        .input-section { text-align: left; margin-top: 20px; }
+        label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 8px; }
+        textarea { width: 100%; border-radius: 10px; border: 1px solid #ddd; padding: 10px; box-sizing: border-box; resize: none; font-family: inherit; }
+        
+        .habit-row { display: flex; align-items: center; gap: 10px; margin: 15px 0; background: #f9f9f9; padding: 10px; border-radius: 10px; cursor: pointer; }
+
+        #save-btn { background: #333; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 16px; margin-top: 10px; }
+
+        /* Kutlama Yazısı */
+        #celebration { position: absolute; top: -20px; left: 0; width: 100%; color: #FFD700; font-weight: bold; display: none; text-shadow: 0 0 10px rgba(255,215,0,0.5); animation: sparkle 1s infinite; }
+        
+        @keyframes sparkle { 0% { opacity: 0.5; } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 0.5; } }
+
+        /* Takvim ve Kayıtlar */
+        .history { width: 100%; max-width: 400px; margin-top: 30px; }
+        .log-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+        .delete-btn { position: absolute; right: 10px; top: 10px; color: #ff4d4d; cursor: pointer; font-size: 12px; }
+        .log-date { font-size: 11px; color: #999; }
+        .log-note { font-style: italic; color: #666; margin-top: 5px; font-size: 13px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
+    <div class="container">
+        <div id="celebration">✨ HARİKASIN DEVAM ET ✨</div>
         <h2>NeuroVibe</h2>
-        <div id="sphere"></div>
+        
+        <div id="sphere"><div class="sphere-inner"></div></div>
         
         <div class="btn-group">
-            <div class="dot" style="background:#FFD700" onclick="selectEmotion('#FFD700', 'Neşeli')"></div>
-            <div class="dot" style="background:#87CEEB" onclick="selectEmotion('#87CEEB', 'Sakin')"></div>
-            <div class="dot" style="background:#A9A9A9" onclick="selectEmotion('#A9A9A9', 'Yorgun')"></div>
-            <div class="dot" style="background:#98FB98" onclick="selectEmotion('#98FB98', 'Odaklı')"></div>
+            <div class="emotion-btn" onclick="selectEmotion('--joy', 'Neşeli')">
+                <div class="dot" style="background: var(--joy)"></div><span>Neşeli</span>
+            </div>
+            <div class="emotion-btn" onclick="selectEmotion('--calm', 'Sakin')">
+                <div class="dot" style="background: var(--calm)"></div><span>Sakin</span>
+            </div>
+            <div class="emotion-btn" onclick="selectEmotion('--focus', 'Odaklı')">
+                <div class="dot" style="background: var(--focus)"></div><span>Odaklı</span>
+            </div>
+            <div class="emotion-btn" onclick="selectEmotion('--tired', 'Yorgun')">
+                <div class="dot" style="background: var(--tired)"></div><span>Yorgun</span>
+            </div>
         </div>
 
-        <div class="habits">
-            <div class="habit-row">
-                <input type="checkbox" id="habit1"> <label for="habit1">Lenf Vuruşları Yapıldı</label>
-            </div>
-            <div class="habit-row">
-                <input type="checkbox" id="habit2"> <label for="habit2">90-30 Kuralı Uygulandı</label>
+        <div class="input-section">
+            <label>Bugünün nasıldı?</label>
+            <textarea id="note" maxlength="300" rows="3" placeholder="Zihninden geçenleri dök..."></textarea>
+            
+            <div class="habit-row" onclick="toggleHabit()">
+                <input type="checkbox" id="habit1" style="cursor: pointer;"> 
+                <span>Lenf Vuruşları Yapıldı</span>
             </div>
         </div>
 
-        <button id="save-btn" onclick="saveData()">Günü Kaydet</button>
+        <button id="save-btn" onclick="saveData()">Günü Mühürle</button>
     </div>
 
-    <div id="log-container">
-        <!-- Kayıtlar buraya gelecek -->
+    <div class="history" id="history">
+        <h3>Haftalık Takip</h3>
+        <!-- Kayıtlar buraya -->
     </div>
 
 <script>
-    let currentEmotion = { color: '#eee', name: 'Belirsiz' };
+    let selectedColor = '#eee';
+    let selectedName = 'Belirsiz';
 
-    function selectEmotion(color, name) {
+    function selectEmotion(varName, name) {
+        const color = getComputedStyle(document.documentElement).getPropertyValue(varName);
         document.getElementById('sphere').style.backgroundColor = color;
-        currentEmotion = { color, name };
+        document.getElementById('sphere').style.boxShadow = `0 0 30px ${color}`;
+        selectedColor = color;
+        selectedName = name;
+    }
+
+    function toggleHabit() {
+        const cb = document.getElementById('habit1');
+        cb.checked = !cb.checked;
+        if(cb.checked) showCelebration();
+    }
+
+    function showCelebration() {
+        const cel = document.getElementById('celebration');
+        cel.style.display = 'block';
+        setTimeout(() => { cel.style.display = 'none'; }, 3000);
     }
 
     function saveData() {
-        const h1 = document.getElementById('habit1').checked;
-        const h2 = document.getElementById('habit2').checked;
-        const date = new Date().toLocaleDateString('tr-TR');
+        const note = document.getElementById('note').value;
+        const habit = document.getElementById('habit1').checked;
+        const now = new Date();
+        const timestamp = `${now.toLocaleDateString('tr-TR')} ${now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}`;
 
-        const entry = { date, emotion: currentEmotion, habit1: h1, habit2: h2 };
+        const entry = {
+            id: Date.now(),
+            time: timestamp,
+            emotion: { color: selectedColor, name: selectedName },
+            note: note,
+            habit: habit
+        };
 
-        // LocalStorage'dan mevcut verileri al
-        let history = JSON.parse(localStorage.getItem('neurovibe_logs')) || [];
-        history.unshift(entry); // Yeni kaydı başa ekle
-        localStorage.setItem('neurovibe_logs', JSON.stringify(history));
+        let logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
+        logs.unshift(entry);
+        localStorage.setItem('neuro_logs', JSON.stringify(logs));
 
+        // Formu temizle
+        document.getElementById('note').value = '';
+        document.getElementById('habit1').checked = false;
         renderLogs();
-        alert("Kaydedildi! Yarın geldiğinde de burada olacak.");
+    }
+
+    function deleteLog(id) {
+        let logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
+        logs = logs.filter(log => log.id !== id);
+        localStorage.setItem('neuro_logs', JSON.stringify(logs));
+        renderLogs();
     }
 
     function renderLogs() {
-        const container = document.getElementById('log-container');
-        const history = JSON.parse(localStorage.getItem('neurovibe_logs')) || [];
+        const container = document.getElementById('history');
+        const logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
         container.innerHTML = '<h3>Geçmiş Kayıtlar</h3>';
-        
-        history.forEach(item => {
+
+        logs.forEach(item => {
             const div = document.createElement('div');
             div.className = 'log-item';
-            div.style.borderLeftColor = item.emotion.color;
+            div.style.borderLeft = `6px solid ${item.emotion.color}`;
             div.innerHTML = `
-                <span><b>${item.date}</b> - ${item.emotion.name}</span>
-                <span>${item.habit1 ? '✅' : '❌'} | ${item.habit2 ? '✅' : '❌'}</span>
+                <div class="delete-btn" onclick="deleteLog(${item.id})">Sil</div>
+                <div class="log-date">${item.time}</div>
+                <div><strong>${item.emotion.name}</strong> ${item.habit ? ' | ✅ Lenf' : ''}</div>
+                ${item.note ? `<div class="log-note">"${item.note}"</div>` : ''}
             `;
             container.appendChild(div);
         });
     }
 
-    // Sayfa açıldığında eski kayıtları göster
     renderLogs();
 </script>
-
 </body>
 </html>
