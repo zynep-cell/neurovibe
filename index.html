@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroVibe - Art & Mindfulness</title>
+    <title>NeuroVibe - Art, Breath & Deep Notes</title>
     <style>
         :root { --bg: #fdfbfb; --accent: #333; --gold: #d4af37; --breath: #87CEEB; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; color: #444; }
         
-        .container { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 50px rgba(0,0,0,0.06); width: 100%; max-width: 480px; text-align: center; position: relative; }
+        .container { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 50px rgba(0,0,0,0.06); width: 100%; max-width: 500px; text-align: center; position: relative; }
 
         /* Başlık ve İstatistikler */
         .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
         .profile-name { font-weight: bold; border: none; font-size: 1rem; color: var(--accent); outline: none; background: transparent; width: 150px; }
 
-        .stats-row { display: flex; justify-content: space-around; margin: 15px 0; background: #fafafa; padding: 12px; border-radius: 15px; font-size: 11px; border: 1px solid #f0f0f0; }
-        .stat-box b { display: block; font-size: 16px; color: var(--accent); margin-bottom: 2px; }
+        #celebration { position: absolute; top: -15px; width: 100%; color: var(--gold); font-weight: bold; font-size: 1.2rem; display: none; z-index: 100; animation: bounce 0.5s infinite alternate; pointer-events: none; }
+        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        .stats-row { display: flex; justify-content: space-around; margin: 10px 0; background: #fafafa; padding: 12px; border-radius: 15px; font-size: 11px; border: 1px solid #f0f0f0; }
+        .stat-box b { display: block; font-size: 16px; color: var(--accent); }
 
         /* Çizim Alanı */
         .canvas-container { position: relative; width: 260px; height: 260px; margin: 10px auto; border-radius: 50%; overflow: hidden; background: white; border: 4px solid #f9f9f9; box-shadow: inset 0 0 15px rgba(0,0,0,0.03); }
@@ -25,43 +28,38 @@
         .tool-btn { padding: 8px; border: none; border-radius: 8px; cursor: pointer; background: #f0f0f0; font-size: 11px; }
         .tool-btn.active { background: var(--accent); color: white; }
 
-        /* Nefes Egzersizi (Geri Sayımlı) */
-        .breath-section { background: #f0f8ff; padding: 15px; border-radius: 20px; margin: 15px 0; border: 1px solid #d0e4f5; position: relative; }
-        #breath-timer { position: absolute; top: 10px; right: 15px; font-size: 11px; color: #4682B4; font-weight: bold; }
-        #breath-circle { width: 60px; height: 60px; background: var(--breath); border-radius: 50%; margin: 15px auto; transition: transform 1s ease-in-out; opacity: 0.6; }
-        #breath-instruction { font-weight: bold; color: #4682B4; font-size: 14px; }
-        #breath-seconds { font-size: 24px; display: block; color: var(--accent); margin: 5px 0; }
-        .breath-btn { background: var(--breath); color: white; border: none; padding: 8px 20px; border-radius: 12px; cursor: pointer; }
+        /* Nefes Bölümü */
+        .breath-section { background: #f0f8ff; padding: 15px; border-radius: 20px; margin: 10px 0; border: 1px solid #d0e4f5; position: relative; }
+        #breath-circle { width: 50px; height: 50px; background: var(--breath); border-radius: 50%; margin: 10px auto; transition: transform 1s ease-in-out; opacity: 0.6; }
+        #breath-instruction { font-weight: bold; color: #4682B4; }
 
-        /* Diğer Modüller */
-        .weather-grid { display: flex; justify-content: space-around; margin: 10px 0; font-size: 22px; }
-        .weather-icon { cursor: pointer; padding: 5px; border-radius: 50%; }
-        .weather-icon.active { background: #fff3cd; }
-        #weather-tip { font-size: 11px; color: var(--gold); font-style: italic; min-height: 15px; margin-bottom: 10px; }
-
-        .emotion-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; }
+        /* Mod ve Yüzdelik (Geri Geldi) */
+        .emotion-section { text-align: left; background: #fcfcfc; padding: 15px; border-radius: 20px; margin: 15px 0; border: 1px solid #eee; }
+        .emo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
         .emo-btn { padding: 8px; border-radius: 10px; border: 1px solid #ddd; background: white; font-size: 11px; cursor: pointer; }
         .emo-btn.selected { background: #e8f0fe; border-color: var(--accent); font-weight: bold; }
+        .intensity-box { font-size: 12px; font-weight: bold; }
 
+        /* Alışkanlıklar */
         .habit-list { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; justify-content: center; }
         .habit-chip { background: #f0f0f0; padding: 5px 12px; border-radius: 15px; font-size: 11px; cursor: pointer; }
         .habit-chip.active { background: #e8f5e9; border: 1px solid #4CAF50; color: #2e7d32; }
 
+        /* Not Alanı (2000 Karakter) */
+        textarea { width: 100%; border-radius: 15px; border: 1px solid #eee; padding: 15px; box-sizing: border-box; margin: 10px 0; font-family: inherit; font-size: 14px; background: #fafafa; min-height: 100px; resize: vertical; }
+
         #save-btn { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 15px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
 
-        /* Geçmiş Listesi */
-        .history-section { width: 100%; max-width: 480px; margin-top: 30px; }
-        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-        .log-card { background: white; padding: 12px; border-radius: 20px; border: 1px solid #eee; text-align: center; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.02); }
-        .log-card img { width: 100%; border-radius: 50%; margin-bottom: 8px; border: 2px solid #f9f9f9; }
-        .log-details { font-size: 10px; color: #666; line-height: 1.4; }
-        .delete-log { position: absolute; top: 8px; right: 8px; cursor: pointer; color: #ddd; font-weight: bold; }
+        /* Zaman Tüneli */
+        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 20px; width: 100%; max-width: 500px; }
+        .log-card { background: white; padding: 12px; border-radius: 20px; border: 1px solid #eee; text-align: center; position: relative; }
+        .log-card img { width: 100%; border-radius: 50%; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div id="celebration" style="position:absolute; top:-20px; width:100%; display:none; color:var(--gold); font-weight:bold;">✨ HARİKASIN ✨</div>
+        <div id="celebration">✨ HARİKASIN. DEVAM ET. ✨</div>
         <div class="header-row">
             <div>👋 <input type="text" id="userName" class="profile-name" placeholder="İsmin?"></div>
             <div id="clock" style="font-size: 12px; color: #aaa;"></div>
@@ -87,64 +85,53 @@
             <button class="tool-btn" id="btn-kursun" onclick="setTool('kursun')">✏️ Kurşun</button>
             <button class="tool-btn" id="btn-eraser" onclick="setTool('eraser')">🧽 Silgi</button>
             <button class="tool-btn" onclick="undo()">↩️ Geri</button>
-            <button class="tool-btn" onclick="clearCanvas()">🗑️ Sil</button>
+            <button class="tool-btn" id="btn-clear" onclick="clearCanvas()" style="background:#eee">🗑️ Sıfırla</button>
         </div>
 
         <div class="breath-section">
-            <div id="breath-timer">Kalan: 60s</div>
-            <div id="breath-instruction">Nefese Hazır mısın?</div>
-            <span id="breath-seconds">0</span>
+            <div id="breath-instruction">Nefes Başlasın mı?</div>
             <div id="breath-circle"></div>
-            <button class="breath-btn" id="breathBtn" onclick="startBreathing()">Egzersizi Başlat</button>
+            <button class="tool-btn" id="breathBtn" onclick="startBreathing()" style="background:var(--breath); color:white; width:auto; padding:8px 20px;">Başlat</button>
         </div>
 
-        <div class="weather-grid">
-            <span class="weather-icon" onclick="setWeather('sunny', '☀️')">☀️</span>
-            <span class="weather-icon" onclick="setWeather('cloudy', '⛅')">⛅</span>
-            <span class="weather-icon" onclick="setWeather('moon', '🌙')">🌙</span>
-            <span class="weather-icon" onclick="setWeather('rainy', '🌧️')">🌧️</span>
-            <span class="weather-icon" onclick="setWeather('stormy', '⚡')">⚡</span>
-            <span class="weather-icon" onclick="setWeather('windy', '🌬️')">🌬️</span>
-        </div>
-        <div id="weather-tip"></div>
-
-        <div class="emotion-grid">
-            <button class="emo-btn" onclick="toggleEmotion('Mutlu')">😊 Mutlu</button>
-            <button class="emo-btn" onclick="toggleEmotion('Huzurlu')">😌 Huzurlu</button>
-            <button class="emo-btn" onclick="toggleEmotion('Öfkeli')">😠 Öfkeli</button>
-            <button class="emo-btn" onclick="toggleEmotion('Kızgın')">😡 Kızgın</button>
-            <button class="emo-btn" onclick="toggleEmotion('Sıkkın')">😑 Sıkkın</button>
-            <button class="emo-btn" onclick="toggleEmotion('Nötr')">😐 Nötr</button>
+        <div class="emotion-section">
+            <div class="emo-grid">
+                <button class="emo-btn" onclick="toggleEmotion('Mutlu')">😊 Mutlu</button>
+                <button class="emo-btn" onclick="toggleEmotion('Huzurlu')">😌 Huzurlu</button>
+                <button class="emo-btn" onclick="toggleEmotion('Öfkeli')">😠 Öfkeli</button>
+                <button class="emo-btn" onclick="toggleEmotion('Kızgın')">😡 Kızgın</button>
+                <button class="emo-btn" onclick="toggleEmotion('Sıkkın')">😑 Sıkkın</button>
+                <button class="emo-btn" onclick="toggleEmotion('Nötr')">😐 Nötr</button>
+            </div>
+            <div class="intensity-box">
+                Yoğunluk: <span id="intLabel">%50</span>
+                <input type="range" id="intRange" min="0" max="100" step="25" value="50" oninput="document.getElementById('intLabel').innerText = '%' + this.value" style="width:100%">
+            </div>
         </div>
 
-        <div style="text-align:left; font-size:12px; font-weight:bold; margin:10px 0;">
-            Stres Seviyesi: <span id="stressLabel">Harikayım (0)</span>
-            <input type="range" id="stressRange" min="0" max="10" value="0" oninput="updateStress(this.value)">
+        <div style="text-align:left; font-size:12px; font-weight:bold;">
+            Stres: <span id="stressLabel">Harikayım (0)</span>
+            <input type="range" id="stressRange" min="0" max="10" value="0" oninput="updateStress(this.value)" style="width:100%">
         </div>
 
         <div id="habitList" class="habit-list"></div>
-        <div style="display:flex; gap:5px; margin-bottom:10px;">
-            <input type="text" id="newHabitInput" placeholder="Alışkanlık..." style="flex:1; padding:8px; border-radius:10px; border:1px solid #eee;">
+        <div style="display:flex; gap:5px; margin-top:10px;">
+            <input type="text" id="newHabitInput" placeholder="Alışkanlık ekle..." style="flex:1; padding:8px; border-radius:10px; border:1px solid #eee;">
             <button onclick="addNewHabit()" style="background:var(--accent); color:white; border-radius:10px; border:none; padding:0 15px;">+</button>
         </div>
 
-        <textarea id="note" rows="2" placeholder="Notun..."></textarea>
+        <textarea id="note" maxlength="2000" placeholder="Bugünün derin notu (Maks 2000 Karakter)..."></textarea>
         <button id="save-btn" onclick="saveData()">Günü Mühürle</button>
     </div>
 
-    <div class="history-section">
-        <h3>Sanatsal Geçmiş</h3>
-        <div id="logGrid" class="log-grid"></div>
-    </div>
+    <div id="logGrid" class="log-grid"></div>
 
 <script>
     const canvas = document.getElementById('paintCanvas');
     const ctx = canvas.getContext('2d');
     let painting = false; let currentTool = 'sulu'; let undoStack = [];
-    let selectedEmotions = []; let selectedWeather = "✨";
-    let breathHabitDone = false;
+    let selectedEmotions = []; let breathDone = false;
 
-    // Çizim Motoru
     function saveState() { if (undoStack.length > 25) undoStack.shift(); undoStack.push(canvas.toDataURL()); }
     function undo() { if (undoStack.length > 0) { let img = new Image(); img.src = undoStack.pop(); img.onload = () => { ctx.clearRect(0,0,260,260); ctx.drawImage(img,0,0); }; } }
     function clearCanvas() { saveState(); ctx.clearRect(0,0,260,260); }
@@ -176,57 +163,23 @@
 
     function setTool(t) { currentTool = t; document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active')); document.getElementById('btn-'+t)?.classList.add('active'); }
 
-    // Gelişmiş Nefes Egzersizi (4-7-8)
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playBeep(freq, dur) {
-        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-        osc.type = 'sine'; osc.frequency.value = freq; gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + dur);
-    }
-
     async function startBreathing() {
         const inst = document.getElementById('breath-instruction');
-        const secDisplay = document.getElementById('breath-seconds');
-        const timerDisplay = document.getElementById('breath-timer');
         const circle = document.getElementById('breath-circle');
         const btn = document.getElementById('breathBtn');
         btn.disabled = true;
-        let totalTime = 60;
-
-        const globalTimer = setInterval(() => {
-            totalTime--;
-            timerDisplay.innerText = `Kalan: ${totalTime}s`;
-            if (totalTime <= 0) clearInterval(globalTimer);
-        }, 1000);
-
-        while (totalTime > 0) {
-            // Nefes Al (4s)
-            inst.innerText = "NEFES AL"; circle.style.transform = "scale(2.5)"; playBeep(440, 0.1);
-            for(let i=4; i>0; i--) { secDisplay.innerText = i; await new Promise(r => setTimeout(r, 1000)); if(totalTime<=0) break; }
-            
-            // Tut (7s)
-            inst.innerText = "TUT"; playBeep(554, 0.1);
-            for(let i=7; i>0; i--) { secDisplay.innerText = i; await new Promise(r => setTimeout(r, 1000)); if(totalTime<=0) break; }
-            
-            // Ver (8s)
-            inst.innerText = "VER"; circle.style.transform = "scale(1)"; playBeep(330, 0.1);
-            for(let i=8; i>0; i--) { secDisplay.innerText = i; await new Promise(r => setTimeout(r, 1000)); if(totalTime<=0) break; }
+        for (let i = 0; i < 3; i++) {
+            inst.innerText = "NEFES AL"; circle.style.transform = "scale(2.5)"; await new Promise(r => setTimeout(r, 4000));
+            inst.innerText = "TUT"; await new Promise(r => setTimeout(r, 7000));
+            inst.innerText = "VER"; circle.style.transform = "scale(1)"; await new Promise(r => setTimeout(r, 8000));
         }
-        inst.innerText = "Tamamlandı!"; secDisplay.innerText = "✓";
-        btn.disabled = false; breathHabitDone = true;
-        updateStats();
+        inst.innerText = "Harika!"; btn.disabled = false; breathDone = true; showCelebration();
     }
 
-    // İstatistikler ve Kayıt
-    function updateStats() {
-        const logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
-        document.getElementById('stat-count').innerText = logs.length;
-        if(logs.length > 0) {
-            const avgStress = (logs.reduce((acc, c) => acc + parseInt(c.stress || 0), 0) / logs.length).toFixed(1);
-            document.getElementById('stat-stress').innerText = avgStress;
-            const habitSuccess = logs.filter(l => l.habits && l.habits.length > 0).length;
-            document.getElementById('stat-habits').innerText = Math.round((habitSuccess / logs.length) * 100) + "%";
-        }
+    function toggleEmotion(emo) {
+        if(selectedEmotions.includes(emo)) selectedEmotions = selectedEmotions.filter(e => e !== emo);
+        else selectedEmotions.push(emo);
+        document.querySelectorAll('.emo-btn').forEach(b => b.classList.toggle('selected', selectedEmotions.includes(b.innerText.split(' ')[1])));
     }
 
     function updateStress(val) {
@@ -234,14 +187,7 @@
         document.getElementById('stressLabel').innerText = `${texts[val]} (${val})`;
     }
 
-    const tips = { sunny: "D Vitamini Zamanı! ☀️", cloudy: "Gökyüzü Yumuşak ⛅", moon: "Yıldızları İzle 🌙", rainy: "Yağmur Sesiyle Sakinleş 🌧️", stormy: "Fırtına Geçecek ⚡", windy: "Rüzgarla Akışta Kal ;) 🌬️" };
-    function setWeather(type, icon) { selectedWeather = icon; document.querySelectorAll('.weather-icon').forEach(i => i.classList.toggle('active', i.innerText === icon)); document.getElementById('weather-tip').innerText = tips[type]; }
-    
-    function toggleEmotion(emo) {
-        if(selectedEmotions.includes(emo)) selectedEmotions = selectedEmotions.filter(e => e !== emo);
-        else selectedEmotions.push(emo);
-        document.querySelectorAll('.emo-btn').forEach(b => b.classList.toggle('selected', selectedEmotions.includes(b.innerText.split(' ')[1])));
-    }
+    function showCelebration() { const cel = document.getElementById('celebration'); cel.style.display='block'; setTimeout(()=>cel.style.display='none', 3000); }
 
     let habits = JSON.parse(localStorage.getItem('neuro_habits')) || ["Lenf Vuruşları"];
     let activeHabits = [];
@@ -250,28 +196,29 @@
         habits.forEach((h, i) => {
             const div = document.createElement('div'); div.className = `habit-chip ${activeHabits.includes(h) ? 'active' : ''}`;
             div.innerHTML = `${h} <span onclick="deleteHabit(event, ${i})">×</span>`;
-            div.onclick = () => { if(activeHabits.includes(h)) activeHabits = activeHabits.filter(a => a !== h); else activeHabits.push(h); renderHabits(); };
+            div.onclick = () => { if(activeHabits.includes(h)) activeHabits = activeHabits.filter(a => a !== h); else { activeHabits.push(h); showCelebration(); } renderHabits(); };
             list.appendChild(div);
         });
     }
     function addNewHabit() { const v = document.getElementById('newHabitInput').value; if(v) { habits.push(v); localStorage.setItem('neuro_habits', JSON.stringify(habits)); renderHabits(); } }
     function deleteHabit(e, i) { e.stopPropagation(); habits.splice(i,1); localStorage.setItem('neuro_habits', JSON.stringify(habits)); renderHabits(); }
 
+    function updateStats() {
+        const logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
+        document.getElementById('stat-count').innerText = logs.length;
+        if(logs.length > 0) {
+            const avgS = (logs.reduce((acc, c) => acc + parseInt(c.stress || 0), 0) / logs.length).toFixed(1);
+            document.getElementById('stat-stress').innerText = avgS;
+            const habS = logs.filter(l => l.habits.length > 0).length;
+            document.getElementById('stat-habits').innerText = Math.round((habS / logs.length) * 100) + "%";
+        }
+    }
+
     function saveData() {
-        const finalHabits = [...activeHabits]; if(breathHabitDone) finalHabits.push("🧘 Nefes");
-        const entry = { 
-            id: Date.now(), 
-            time: new Date().toLocaleDateString('tr-TR'),
-            hour: new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}),
-            emotions: [...selectedEmotions], 
-            stress: document.getElementById('stressRange').value, 
-            weather: selectedWeather, 
-            habits: finalHabits, 
-            image: canvas.toDataURL(), 
-            note: document.getElementById('note').value 
-        };
+        const finalHabits = [...activeHabits]; if(breathDone) finalHabits.push("🧘 Nefes");
+        const entry = { id: Date.now(), user: document.getElementById('userName').value, time: new Date().toLocaleDateString('tr-TR'), hour: new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}), emotions: [...selectedEmotions], intensity: document.getElementById('intRange').value, stress: document.getElementById('stressRange').value, habits: finalHabits, image: canvas.toDataURL(), note: document.getElementById('note').value };
         let logs = JSON.parse(localStorage.getItem('neuro_logs')) || []; logs.unshift(entry); localStorage.setItem('neuro_logs', JSON.stringify(logs));
-        renderLogs(); updateStats(); clearCanvas(); selectedEmotions = []; activeHabits = []; breathHabitDone = false; renderHabits();
+        renderLogs(); updateStats(); clearCanvas(); selectedEmotions = []; activeHabits = []; breathDone = false; renderHabits();
     }
 
     function renderLogs() {
@@ -279,15 +226,7 @@
         let logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
         logs.forEach(l => {
             const d = document.createElement('div'); d.className = "log-card";
-            d.innerHTML = `
-                <img src="${l.image}">
-                <div class="log-details">
-                    <b>${l.time} ${l.hour} ${l.weather}</b><br>
-                    Mod: ${l.emotions.join(', ') || 'Belirsiz'}<br>
-                    Stres: ${l.stress}/10
-                </div>
-                <div onclick="deleteLog(${l.id})" class="delete-log">×</div>
-            `;
+            d.innerHTML = `<img src="${l.image}"><div style="font-size:10px"><b>${l.time} ${l.hour}</b><br>${l.emotions.join(', ')} (%${l.intensity})</div><div onclick="deleteLog(${l.id})" style="position:absolute; top:5px; right:8px; cursor:pointer; color:#ccc">×</div>`;
             grid.appendChild(d);
         });
     }
