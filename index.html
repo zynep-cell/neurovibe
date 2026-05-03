@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroVibe - Smart Memory Edition</title>
+    <title>NeuroVibe - Custom Exercise Edition</title>
     <style>
-        :root { --bg: #fdfbfb; --accent: #333; --gold: #d4af37; --breath: #87CEEB; --eye: #FF6B6B; --music: #a29bfe; }
+        :root { --bg: #fdfbfb; --accent: #333; --gold: #d4af37; --breath: #87CEEB; --eye: #FF6B6B; --music: #a29bfe; --custom: #55efc4; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; color: #444; }
         .container { background: white; padding: 25px; border-radius: 30px; box-shadow: 0 15px 50px rgba(0,0,0,0.06); width: 100%; max-width: 500px; text-align: center; position: relative; }
 
+        /* Başlık ve İstatistikler */
         .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px; }
         .stats-row { display: flex; justify-content: space-around; margin: 10px 0; background: #fafafa; padding: 12px; border-radius: 15px; font-size: 11px; border: 1px solid #f0f0f0; }
         .stat-box b { display: block; font-size: 16px; color: var(--accent); }
@@ -20,31 +21,35 @@
         .tool-btn { padding: 8px; border: none; border-radius: 8px; cursor: pointer; background: #f0f0f0; font-size: 11px; }
         .tool-btn.active { background: var(--accent); color: white; }
 
-        /* Egzersizler */
-        .exercise-box { padding: 15px; border-radius: 25px; margin: 10px 0; border: 1px solid; position: relative; }
-        #breath-circle { width: 50px; height: 50px; background: var(--breath); border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; transition: transform 1s ease-in-out; opacity: 0.7; }
-        #sec-counter { color:white; font-weight:bold; font-size: 18px; }
+        /* Egzersizler (Nefes & Göz & Özel) */
+        .exercise-box { padding: 15px; border-radius: 25px; margin: 10px 0; border: 1px solid #eee; position: relative; }
+        #breath-circle { width: 50px; height: 50px; background: var(--breath); border-radius: 50%; margin: 5px auto; display: flex; align-items: center; justify-content: center; transition: transform 1s ease-in-out; opacity: 0.7; }
+        
+        .timer-display { font-size: 20px; font-weight: bold; margin: 5px 0; color: var(--accent); }
 
-        /* Multimedya */
+        /* Yeni: Özel Egzersiz Tasarımcısı */
+        .custom-ex-section { background: #f1fcf9; padding: 15px; border-radius: 20px; border: 1px solid #d1f2eb; margin: 15px 0; text-align: left; }
+        .ex-input { width: 100%; padding: 8px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; font-size: 12px; }
+        .ex-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .ex-chip { background: white; padding: 8px 12px; border-radius: 12px; font-size: 11px; border: 1px solid #eee; cursor: pointer; }
+
+        /* Diğerleri */
         .memory-section { background: #fcfcfc; padding: 15px; border-radius: 20px; border: 1px solid #eee; margin: 15px 0; text-align: left; }
         .memory-input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 10px; border: 1px solid #eee; font-size: 13px; box-sizing: border-box; }
         .photo-btn { display: block; background: #eee; padding: 10px; border-radius: 10px; font-size: 11px; cursor: pointer; text-align: center; border: none; width: 100%; margin-top: 5px; }
 
-        /* Hava Durumu & Mod */
         .weather-grid { display: flex; justify-content: space-around; margin: 15px 0; font-size: 22px; }
         .weather-icon { cursor: pointer; padding: 5px; border-radius: 50%; }
         .weather-icon.active { background: #fff3cd; transform: scale(1.2); }
+
         .emo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 15px 0; }
         .emo-row { display: flex; align-items: center; gap: 5px; background: #f9f9f9; padding: 5px; border-radius: 10px; }
         .emo-slider { flex: 1; accent-color: var(--accent); }
 
-        textarea { width: 100%; border-radius: 15px; border: 1px solid #eee; padding: 15px; box-sizing: border-box; margin: 10px 0; min-height: 100px; font-family: inherit; }
+        textarea { width: 100%; border-radius: 15px; border: 1px solid #eee; padding: 15px; box-sizing: border-box; margin: 10px 0; min-height: 80px; font-family: inherit; }
         #save-btn { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 15px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
 
-        /* Zaman Tüneli */
         .log-card { background: white; padding: 15px; border-radius: 25px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 8px solid var(--accent); position: relative; }
-        .log-photo { width: 100%; border-radius: 15px; margin-top: 10px; max-height: 300px; object-fit: cover; }
-
         #celebration { position: absolute; top: -15px; width: 100%; color: var(--gold); font-weight: bold; display: none; text-align: center; z-index: 100; animation: bounce 0.5s infinite alternate; }
         @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.1); } }
     </style>
@@ -53,7 +58,6 @@
 
     <div class="container">
         <div id="celebration">✨ HARİKASIN. DEVAM ET. ✨</div>
-        
         <div class="header-row">
             <div>👋 <input type="text" id="userName" style="border:none; outline:none; font-weight:bold; background:transparent; width:120px;" placeholder="İsmin?"></div>
             <div id="clock" style="font-size: 12px; color: #999; font-weight:bold;"></div>
@@ -75,24 +79,47 @@
             <button class="tool-btn" id="btn-murekkep" onclick="setTool('murekkep')">🖋️ Mürek.</button>
             <button class="tool-btn" id="btn-kursun" onclick="setTool('kursun')">✏️ Kurşun</button>
             <button class="tool-btn" id="btn-eraser" onclick="setTool('eraser')">🧽 Silgi</button>
-            <button class="tool-btn" onclick="undo()" title="Geri Al">↩️ Geri</button>
-            <button class="tool-btn" onclick="redo()" title="İleri Al">↪️ İleri</button>
+            <button class="tool-btn" onclick="undo()">↩️ Geri</button>
+            <button class="tool-btn" onclick="redo()">↪️ İleri</button>
             <button class="tool-btn" onclick="clearCanvas()" style="background:#ddd">🗑️ Sıfırla</button>
         </div>
 
+        <!-- 4-7-8 Nefes -->
         <div class="exercise-box" style="background: #f0f8ff; border-color: #d0e4f5;">
-            <div id="global-timer" style="position:absolute; top:5px; right:15px; font-size:10px; color:#4682B4;">60s</div>
-            <div id="breath-instruction" style="font-size:12px; font-weight:bold; color:#4682B4;">Nefes?</div>
-            <div id="breath-circle"><span id="sec-counter">0</span></div>
-            <button class="tool-btn" id="breathBtn" onclick="startBreathing()" style="background:var(--breath); color:white; padding:5px 15px;">Başlat</button>
+            <div style="font-size:11px; font-weight:bold; color:#4682B4;">4-7-8 NEFES</div>
+            <div id="breath-circle"><span id="breath-sec" style="color:white; font-weight:bold;">0</span></div>
+            <div id="breath-txt" style="font-size:10px; color:#4682B4;">HAZIR MISIN?</div>
+            <button class="tool-btn" id="breathBtn" onclick="startBreathing()" style="background:var(--breath); color:white; padding:5px 15px; margin-top:5px;">Başlat</button>
+        </div>
+
+        <!-- Göz Egzersizi (Senin İstediğin Sayaçlı Hali) -->
+        <div class="exercise-box" style="background: #fff5f5; border-color: #fed7d7;">
+            <div style="font-size:11px; font-weight:bold; color:var(--eye);">GÖZ EGZERSİZİ (1 DK)</div>
+            <div class="timer-display" id="eye-timer">60s</div>
+            <div style="font-size:10px; color:var(--eye); margin-bottom:5px;">Sola-Sağa, Zigzag, Yukarı-Aşağı Hareket Et!</div>
+            <button class="tool-btn" id="eyeBtn" onclick="startSimpleTimer(60, 'Göz Egz.', 'eye-timer', 'eyeBtn')" style="background:var(--eye); color:white; padding:5px 15px;">Başlat</button>
+        </div>
+
+        <!-- Yeni: Özel Egzersiz Tasarımcısı -->
+        <div class="custom-ex-section">
+            <div style="font-size:11px; font-weight:bold; color:var(--custom); margin-bottom:5px;">ÖZEL SAYAÇ EKLE</div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="exName" class="ex-input" placeholder="Egzersiz Adı (Örn: Yüz Yogası)">
+                <select id="exTime" class="ex-input" style="width:80px;">
+                    <option value="15">15 Sn</option>
+                    <option value="30">30 Sn</option>
+                    <option value="60">1 Dk</option>
+                </select>
+                <button onclick="addCustomEx()" class="tool-btn" style="background:var(--custom); color:white;">+</button>
+            </div>
+            <div id="customExList" class="ex-list"></div>
+            <div id="active-custom-timer" class="timer-display" style="display:none; color:var(--custom); text-align:center;">0s</div>
         </div>
 
         <div class="memory-section">
-            <label style="font-size: 12px; font-weight: bold; color: var(--music);">🎵 Şarkı Adı & Linki</label>
-            <input type="text" id="songName" class="memory-input" placeholder="Şarkı İsmi">
-            <input type="text" id="songUrl" class="memory-input" placeholder="Link (Spotify/Youtube)">
-            <label style="font-size: 12px; font-weight: bold; color: var(--eye); margin-top:10px; display:block;">📸 Anı Fotoğrafı (Akıllı Boyutlandırma)</label>
-            <label for="photoInput" class="photo-btn">Fotoğraf Seç</label>
+            <input type="text" id="songName" class="memory-input" placeholder="Günün Şarkısı">
+            <input type="text" id="songUrl" class="memory-input" placeholder="Şarkı Linki">
+            <label for="photoInput" class="photo-btn">📸 Anı Fotoğrafı Seç</label>
             <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="handlePhoto(this)">
             <img id="photo-preview" src="" style="width:100%; border-radius:10px; margin-top:10px; display:none;">
         </div>
@@ -122,9 +149,9 @@
         </div>
 
         <div id="habitList" class="draw-tools" style="grid-template-columns: repeat(3, 1fr); gap:5px;"></div>
-        <div style="display:flex; gap:5px; margin-top:10px;"><input type="text" id="newHabitInput" placeholder="Yeni Alışkanlık..." style="flex:1; border-radius:10px; border:1px solid #eee; padding:8px;"> <button onclick="addNewHabit()" style="background:var(--accent); color:white; border:none; border-radius:10px; padding:0 10px;">+</button></div>
+        <div style="display:flex; gap:5px; margin-top:10px;"><input type="text" id="newHabitInput" placeholder="Alışkanlık..." style="flex:1; border-radius:10px; border:1px solid #eee; padding:8px;"> <button onclick="addNewHabit()" style="background:var(--accent); color:white; border:none; border-radius:10px; padding:0 10px;">+</button></div>
 
-        <textarea id="note" maxlength="2000" placeholder="Bugünün notu (Maks 2000 karakter)..."></textarea>
+        <textarea id="note" maxlength="2000" placeholder="Bugünün notu..."></textarea>
         <button id="save-btn" onclick="saveData()">Günü Mühürle</button>
     </div>
     <div id="logHistory" style="width:100%; max-width:500px; margin-top:20px;"></div>
@@ -132,15 +159,13 @@
 <script>
     const canvas = document.getElementById('paintCanvas'); const ctx = canvas.getContext('2d');
     let painting = false; let currentTool = 'sulu'; let undoStack = []; let redoStack = [];
-    let activeEmos = {}; let selectedWeather = "✨"; let breathDone = false; let eyeDone = false;
+    let activeEmos = {}; let selectedWeather = "✨"; let completedEx = [];
     let base64Photo = "";
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playTick(f, d) { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(0.05, audioCtx.currentTime); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+d); }
 
     function setTool(t) { currentTool=t; document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-'+t)?.classList.add('active'); }
-    
-    // Geri ve İleri Al Sistemi
     function saveState() { if(undoStack.length>30) undoStack.shift(); undoStack.push(canvas.toDataURL()); redoStack = []; }
     function undo() { if(undoStack.length>0) { redoStack.push(canvas.toDataURL()); let img=new Image(); img.src=undoStack.pop(); img.onload=()=> { ctx.clearRect(0,0,260,260); ctx.drawImage(img,0,0); } } }
     function redo() { if(redoStack.length>0) { undoStack.push(canvas.toDataURL()); let img=new Image(); img.src=redoStack.pop(); img.onload=()=> { ctx.clearRect(0,0,260,260); ctx.drawImage(img,0,0); } } }
@@ -151,14 +176,11 @@
         const rect = canvas.getBoundingClientRect();
         const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
         const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
-        const color = document.getElementById('colorPicker').value;
-        const size = document.getElementById('sizeRange').value;
-        ctx.lineCap='round'; ctx.strokeStyle=color; ctx.lineWidth=size;
+        ctx.lineCap='round'; ctx.strokeStyle=document.getElementById('colorPicker').value; ctx.lineWidth=document.getElementById('sizeRange').value;
         if(currentTool==='eraser') { ctx.strokeStyle='#fff'; ctx.lineWidth=35; ctx.globalAlpha=1; }
         else if(currentTool==='sulu') ctx.globalAlpha=0.1;
         else if(currentTool==='murekkep') { ctx.globalAlpha=0.8; ctx.lineWidth=size*0.4; }
-        else if(currentTool==='kursun') { ctx.globalAlpha=0.3; ctx.lineWidth=1.5; }
-        else if(currentTool==='puskurtme') { ctx.fillStyle=color; ctx.globalAlpha=0.3; for(let i=0;i<10;i++) ctx.fillRect(x+(Math.random()-0.5)*size, y+(Math.random()-0.5)*size, 2, 2); return; }
+        else if(currentTool==='puskurtme') { ctx.fillStyle=ctx.strokeStyle; ctx.globalAlpha=0.3; for(let i=0;i<10;i++) ctx.fillRect(x+(Math.random()-0.5)*20, y+(Math.random()-0.5)*20, 2, 2); return; }
         ctx.lineTo(x,y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x,y);
     }
     canvas.addEventListener('mousedown', (e)=>{ saveState(); painting=true; draw(e); });
@@ -166,23 +188,17 @@
     canvas.addEventListener('touchstart', (e)=>{ saveState(); painting=true; draw(e); e.preventDefault(); });
     canvas.addEventListener('touchmove', (e)=>{ draw(e); e.preventDefault(); });
 
-    // Akıllı Fotoğraf Boyutlandırma
     function handlePhoto(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    const canvasPhoto = document.createElement('canvas');
-                    const MAX_SIZE = 400; // Hafıza dostu boyut
-                    let w = img.width, h = img.height;
-                    if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
-                    else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
-                    canvasPhoto.width = w; canvasPhoto.height = h;
-                    canvasPhoto.getContext('2d').drawImage(img, 0, 0, w, h);
-                    base64Photo = canvasPhoto.toDataURL('image/jpeg', 0.6);
-                    document.getElementById('photo-preview').src = base64Photo;
-                    document.getElementById('photo-preview').style.display = 'block';
+                    const c = document.createElement('canvas'); const s = 400; let w=img.width, h=img.height;
+                    if(w>h){ if(w>s){h*=s/w; w=s;} } else { if(h>s){w*=s/h; h=s;} }
+                    c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+                    base64Photo = c.toDataURL('image/jpeg',0.6);
+                    document.getElementById('photo-preview').src=base64Photo; document.getElementById('photo-preview').style.display='block';
                 };
                 img.src = e.target.result;
             }
@@ -190,33 +206,62 @@
         }
     }
 
-    async function startBreathing() {
-        const inst=document.getElementById('breath-instruction'); const circle=document.getElementById('breath-circle'); const counter=document.getElementById('sec-counter'); const globalT=document.getElementById('global-timer');
-        let timeLeft=60; const timer=setInterval(()=>{ timeLeft--; globalT.innerText=`${timeLeft}s`; if(timeLeft<=0) clearInterval(timer); },1000);
-        while(timeLeft>0) {
-            inst.innerText="AL"; circle.style.transform="scale(2.5)"; for(let s=4;s>0;s--){ counter.innerText=s; playTick(440,0.05); await new Promise(r=>setTimeout(r,1000)); if(timeLeft<=0) break;}
-            inst.innerText="TUT"; for(let s=7;s>0;s--){ counter.innerText=s; playTick(554,0.05); await new Promise(r=>setTimeout(r,1000)); if(timeLeft<=0) break;}
-            inst.innerText="VER"; circle.style.transform="scale(1)"; for(let s=8;s>0;s--){ counter.innerText=s; playTick(330,0.05); await new Promise(r=>setTimeout(r,1000)); if(timeLeft<=0) break;}
-        }
-        inst.innerText="Harika!"; breathDone=true; showCel();
+    // Basit Sayaç Fonksiyonu (Göz ve Özel Egzersizler için)
+    function startSimpleTimer(sec, name, displayId, btnId) {
+        let time = sec;
+        const display = document.getElementById(displayId);
+        const btn = document.getElementById(btnId);
+        if(btn) btn.disabled = true;
+        if(displayId === 'active-custom-timer') display.style.display = 'block';
+
+        const timer = setInterval(() => {
+            time--;
+            display.innerText = time + "s";
+            if(time % 5 === 0) playTick(600, 0.05);
+            if(time <= 0) {
+                clearInterval(timer);
+                display.innerText = "Tamam!";
+                if(btn) btn.disabled = false;
+                completedEx.push(name);
+                showCel();
+            }
+        }, 1000);
     }
 
-    async function startEyeExercise() {
-        const dot=document.getElementById('eye-dot'); const inst=document.getElementById('eye-instruction'); dot.style.display='block';
-        const move = (s,e,d) => new Promise(res => { let st=null; const f=(t)=>{ if(!st) st=t; let p=Math.min((t-st)/d,1); dot.style.left=(s.x+(e.x-s.x)*p)+'%'; dot.style.top=(s.y+(e.y-s.y)*p)+'%'; if(p<1) requestAnimationFrame(f); else res(); }; requestAnimationFrame(f); });
-        inst.innerText="Takip Et..."; await move({x:0,y:0},{x:90,y:85},8000); await move({x:90,y:85},{x:0,y:0},8000);
-        inst.innerText="Zigzag..."; for(let i=0;i<4;i++){ await move({x:5,y:0},{x:5,y:85},2000); await move({x:5,y:85},{x:5,y:0},2000); }
-        dot.style.display='none'; eyeDone=true; showCel();
+    // 4-7-8 Nefes
+    async function startBreathing() {
+        const btn = document.getElementById('breathBtn'); btn.disabled=true;
+        const circle = document.getElementById('breath-circle'); const txt = document.getElementById('breath-txt'); const sec = document.getElementById('breath-sec');
+        for(let i=0; i<3; i++){
+            txt.innerText="AL"; circle.style.transform="scale(2.5)"; for(let s=4;s>0;s--){ sec.innerText=s; playTick(440,0.05); await new Promise(r=>setTimeout(r,1000)); }
+            txt.innerText="TUT"; for(let s=7;s>0;s--){ sec.innerText=s; playTick(554,0.05); await new Promise(r=>setTimeout(r,1000)); }
+            txt.innerText="VER"; circle.style.transform="scale(1)"; for(let s=8;s>0;s--){ sec.innerText=s; playTick(330,0.05); await new Promise(r=>setTimeout(r,1000)); }
+        }
+        txt.innerText="HARİKA!"; sec.innerText="✓"; btn.disabled=false; completedEx.push("🧘 Nefes"); showCel();
     }
+
+    // Özel Egzersiz Yönetimi
+    let customExs = JSON.parse(localStorage.getItem('neuro_custom_exs')) || [];
+    function renderCustomEx() {
+        const list = document.getElementById('customExList'); list.innerHTML = "";
+        customExs.forEach((ex, i) => {
+            const chip = document.createElement('div'); card.className = ""; // dummy
+            chip.innerHTML = `<div class="ex-chip">${ex.name} (${ex.time}s) <span onclick="deleteEx(event, ${i})">×</span></div>`;
+            chip.onclick = () => startSimpleTimer(ex.time, ex.name, 'active-custom-timer', null);
+            list.appendChild(chip);
+        });
+    }
+    function addCustomEx() {
+        const name = document.getElementById('exName').value; const time = document.getElementById('exTime').value;
+        if(name) { customExs.push({name, time}); localStorage.setItem('neuro_custom_exs', JSON.stringify(customExs)); renderCustomEx(); }
+    }
+    function deleteEx(e, i) { e.stopPropagation(); customExs.splice(i,1); localStorage.setItem('neuro_custom_exs', JSON.stringify(customExs)); renderCustomEx(); }
 
     const tips = { sunny: "D Vitamini Zamanı! ☀️", cloudy: "Hava Yumuşak ⛅", moon: "Yıldızlara Bak 🌙", rainy: "Yağmur Sesi 🌧️", stormy: "Fırtına Geçecek ⚡", windy: "Rüzgarla Ak ;) 🌬️" };
     function setWeather(t,i) { selectedWeather=i; document.querySelectorAll('.weather-icon').forEach(v=>v.classList.toggle('active',v.innerText===i)); document.getElementById('weather-tip').innerText=tips[t]; }
     function toggleEmo(e) { const r=document.getElementById('r-'+e); if(activeEmos[e]){ delete activeEmos[e]; r.style.background="none"; } else { activeEmos[e]=50; r.style.background="#e8f0fe"; } }
     function updateEmo(e,v) { activeEmos[e]=v; }
-    function updateStress(v) { 
-        let tx = ["Harikayım", "Ucundan stresli", "Ucundan stresli", "Az stresli", "Az stresli", "Nötr", "Giderek artıyor", "Giderek artıyor", "Stresliyim", "Stresliyim", "WOW!"];
-        document.getElementById('stressLabel').innerText=`${tx[v]} (${v})`; 
-    }
+    function updateStress(v) { let tx=["Harikayım","Ucundan stresli","Az stresli","Az stresli","Nötr","Giderek artıyor","Giderek artıyor","Stresliyim","Stresliyim","WOW!"]; document.getElementById('stressLabel').innerText=`${tx[v] || 'Stres'} (${v})`; }
     function showCel() { const c=document.getElementById('celebration'); c.style.display='block'; setTimeout(()=>c.style.display='none',3000); }
 
     let habits = JSON.parse(localStorage.getItem('neuro_habits')) || ["Lenf Vuruşları"]; let activeHabits=[];
@@ -228,14 +273,14 @@
 
     function updateStats() {
         const logs=JSON.parse(localStorage.getItem('neuro_logs'))||[]; document.getElementById('stat-count').innerText=logs.length;
-        if(logs.length>0){ const avg=logs.reduce((a,c)=>a+parseInt(c.stress||0),0)/logs.length; document.getElementById('stat-stress').innerText=avg.toFixed(1); const success = logs.filter(l => l.habits && l.habits.length > 0).length; document.getElementById('stat-habits').innerText = Math.round((success/logs.length)*100) + "%"; }
+        if(logs.length>0){ const avg=logs.reduce((a,c)=>a+parseInt(c.stress||0),0)/logs.length; document.getElementById('stat-stress').innerText=avg.toFixed(1); const success = logs.filter(l => l.habits.length > 0).length; document.getElementById('stat-habits').innerText = Math.round((success/logs.length)*100) + "%"; }
     }
 
     function saveData() {
-        const fh = [...activeHabits]; if(breathDone) fh.push("🧘 Nefes"); if(eyeDone) fh.push("👁️ Göz");
-        const entry={ id:Date.now(), time:new Date().toLocaleString('tr-TR'), stress:document.getElementById('stressRange').value, weather:selectedWeather, note:document.getElementById('note').value, image:canvas.toDataURL('image/webp', 0.4), habits:fh, emos:{...activeEmos}, song:document.getElementById('songName').value, songUrl:document.getElementById('songUrl').value, photo:base64Photo };
+        const fh = [...activeHabits, ...completedEx];
+        const entry={ id:Date.now(), time:new Date().toLocaleString('tr-TR'), stress:document.getElementById('stressRange').value, weather:selectedWeather, note:document.getElementById('note').value, image:canvas.toDataURL('image/webp', 0.4), habits:fh, song:document.getElementById('songName').value, songUrl:document.getElementById('songUrl').value, photo:base64Photo };
         let logs = JSON.parse(localStorage.getItem('neuro_logs')) || []; logs.unshift(entry); localStorage.setItem('neuro_logs', JSON.stringify(logs));
-        renderLogs(); updateStats(); clearCanvas(); activeHabits=[]; breathDone=false; eyeDone=false; base64Photo=""; 
+        renderLogs(); updateStats(); clearCanvas(); activeHabits=[]; completedEx=[]; base64Photo=""; 
         document.getElementById('note').value=""; document.getElementById('songName').value=""; document.getElementById('songUrl').value=""; document.getElementById('photo-preview').style.display="none";
         renderHabits(); showCel();
     }
@@ -245,7 +290,7 @@
         let logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
         logs.forEach(l=>{
             const card=document.createElement('div'); card.className="log-card";
-            card.innerHTML=`<div onclick="deleteLog(${l.id})" style="position:absolute;top:10px;right:10px;cursor:pointer;color:#ccc;">×</div><b>${l.time} ${l.weather}</b><br><small>Stres:${l.stress}/10 | ${l.habits.join(', ')}</small>${l.song ? `<br><a href="${l.songUrl}" target="_blank" style="color:var(--music); text-decoration:none; font-size:11px; font-weight:bold;">♫ ${l.song}</a>` : ''}${l.photo ? `<img src="${l.photo}" class="log-photo">` : ''}<div style="font-size:12px; margin-top:10px; white-space:pre-wrap; background:#f9f9f9; padding:8px; border-radius:8px;">${l.note}</div>`;
+            card.innerHTML=`<div onclick="deleteLog(${l.id})" style="position:absolute;top:10px;right:10px;cursor:pointer;color:#ccc;">×</div><b>${l.time} ${l.weather}</b><br><small>Stres:${l.stress}/10 | ${l.habits.join(', ')}</small>${l.song ? `<br><a href="${l.songUrl}" target="_blank" style="color:var(--music); text-decoration:none; font-size:11px; font-weight:bold;">♫ ${l.song}</a>` : ''}${l.photo ? `<img src="${l.photo}" style="width:100%; border-radius:15px; margin-top:10px;">` : ''}<div style="font-size:12px; margin-top:10px; white-space:pre-wrap; background:#f9f9f9; padding:8px; border-radius:8px;">${l.note}</div>`;
             g.appendChild(card);
         });
     }
@@ -254,7 +299,7 @@
     document.getElementById('userName').value=localStorage.getItem('neuro_username')||"";
     document.getElementById('userName').onchange=(e)=>localStorage.setItem('neuro_username',e.target.value);
     setInterval(()=>document.getElementById('clock').innerText=new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}), 1000);
-    renderHabits(); renderLogs(); updateStats();
+    renderHabits(); renderLogs(); updateStats(); renderCustomEx();
 </script>
 </body>
 </html>
