@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NeuroVibe - Interactive Memory</title>
+    <title>NeuroVibe - Smart Memory Edition</title>
     <style>
         :root { --bg: #fdfbfb; --accent: #333; --gold: #d4af37; --breath: #87CEEB; --eye: #FF6B6B; --music: #a29bfe; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; color: #444; }
@@ -13,6 +13,7 @@
         .stats-row { display: flex; justify-content: space-around; margin: 10px 0; background: #fafafa; padding: 12px; border-radius: 15px; font-size: 11px; border: 1px solid #f0f0f0; }
         .stat-box b { display: block; font-size: 16px; color: var(--accent); }
 
+        /* Çizim Alanı */
         .canvas-container { position: relative; width: 260px; height: 260px; margin: 10px auto; border-radius: 50%; overflow: hidden; background: white; border: 4px solid #f9f9f9; box-shadow: inset 0 0 15px rgba(0,0,0,0.03); }
         canvas { cursor: crosshair; touch-action: none; }
         .draw-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 10px 0; }
@@ -22,21 +23,19 @@
         /* Egzersizler */
         .exercise-box { padding: 15px; border-radius: 25px; margin: 10px 0; border: 1px solid; position: relative; }
         #breath-circle { width: 50px; height: 50px; background: var(--breath); border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center; transition: transform 1s ease-in-out; opacity: 0.7; }
-        #eye-canvas-box { width: 100%; height: 80px; background: white; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid #eee; margin: 10px 0; }
-        #eye-dot { width: 12px; height: 12px; background: var(--eye); border-radius: 50%; position: absolute; display: none; }
+        #sec-counter { color:white; font-weight:bold; font-size: 18px; }
 
-        /* Multimedya Bölümü */
+        /* Multimedya */
         .memory-section { background: #fcfcfc; padding: 15px; border-radius: 20px; border: 1px solid #eee; margin: 15px 0; text-align: left; }
         .memory-input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 10px; border: 1px solid #eee; font-size: 13px; box-sizing: border-box; }
-        .photo-controls { display: flex; gap: 5px; margin-top: 5px; }
-        .photo-btn { flex: 1; padding: 10px; border-radius: 10px; font-size: 11px; cursor: pointer; border: none; text-align: center; }
+        .photo-btn { display: block; background: #eee; padding: 10px; border-radius: 10px; font-size: 11px; cursor: pointer; text-align: center; border: none; width: 100%; margin-top: 5px; }
 
-        /* Diğerleri */
+        /* Hava Durumu & Mod */
         .weather-grid { display: flex; justify-content: space-around; margin: 15px 0; font-size: 22px; }
         .weather-icon { cursor: pointer; padding: 5px; border-radius: 50%; }
         .weather-icon.active { background: #fff3cd; transform: scale(1.2); }
         .emo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 15px 0; }
-        .emo-row { display: flex; align-items: center; gap: 5px; background: #f9f9f9; padding: 5px; border-radius: 10px; font-size: 11px; }
+        .emo-row { display: flex; align-items: center; gap: 5px; background: #f9f9f9; padding: 5px; border-radius: 10px; }
         .emo-slider { flex: 1; accent-color: var(--accent); }
 
         textarea { width: 100%; border-radius: 15px; border: 1px solid #eee; padding: 15px; box-sizing: border-box; margin: 10px 0; min-height: 100px; font-family: inherit; }
@@ -44,14 +43,16 @@
 
         /* Zaman Tüneli */
         .log-card { background: white; padding: 15px; border-radius: 25px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 8px solid var(--accent); position: relative; }
-        .log-song-link { color: var(--music); text-decoration: none; font-size: 11px; font-weight: bold; background: #f3f0ff; padding: 4px 8px; border-radius: 8px; display: inline-block; margin-top: 5px; }
         .log-photo { width: 100%; border-radius: 15px; margin-top: 10px; max-height: 300px; object-fit: cover; }
+
+        #celebration { position: absolute; top: -15px; width: 100%; color: var(--gold); font-weight: bold; display: none; text-align: center; z-index: 100; animation: bounce 0.5s infinite alternate; }
+        @keyframes bounce { from { transform: scale(1); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div id="celebration" style="position:absolute; top:-15px; width:100%; color:var(--gold); font-weight:bold; display:none; text-align:center; z-index:100;">✨ HARİKASIN ✨</div>
+        <div id="celebration">✨ HARİKASIN. DEVAM ET. ✨</div>
         
         <div class="header-row">
             <div>👋 <input type="text" id="userName" style="border:none; outline:none; font-weight:bold; background:transparent; width:120px;" placeholder="İsmin?"></div>
@@ -67,40 +68,31 @@
         <div class="canvas-container"><canvas id="paintCanvas" width="260" height="260"></canvas></div>
 
         <div class="draw-tools">
-            <input type="color" id="colorPicker" value="#FFD700" style="width:100%; grid-column: span 4; height:25px; border:none; background:none;">
+            <input type="color" id="colorPicker" value="#FFD700" style="width:100%; grid-column: span 4; height:25px; border:none; background:none; cursor:pointer;">
             <input type="range" id="sizeRange" min="1" max="60" value="15" style="width:100%; grid-column: span 4; accent-color:#333;">
             <button class="tool-btn active" id="btn-sulu" onclick="setTool('sulu')">💧 Sulu</button>
             <button class="tool-btn" id="btn-puskurtme" onclick="setTool('puskurtme')">💨 Püskürt</button>
             <button class="tool-btn" id="btn-murekkep" onclick="setTool('murekkep')">🖋️ Mürek.</button>
             <button class="tool-btn" id="btn-kursun" onclick="setTool('kursun')">✏️ Kurşun</button>
             <button class="tool-btn" id="btn-eraser" onclick="setTool('eraser')">🧽 Silgi</button>
-            <button class="tool-btn" onclick="undo()">↩️ Geri</button>
+            <button class="tool-btn" onclick="undo()" title="Geri Al">↩️ Geri</button>
+            <button class="tool-btn" onclick="redo()" title="İleri Al">↪️ İleri</button>
             <button class="tool-btn" onclick="clearCanvas()" style="background:#ddd">🗑️ Sıfırla</button>
         </div>
 
         <div class="exercise-box" style="background: #f0f8ff; border-color: #d0e4f5;">
             <div id="global-timer" style="position:absolute; top:5px; right:15px; font-size:10px; color:#4682B4;">60s</div>
             <div id="breath-instruction" style="font-size:12px; font-weight:bold; color:#4682B4;">Nefes?</div>
-            <div id="breath-circle"><span id="sec-counter" style="color:white; font-weight:bold;">0</span></div>
+            <div id="breath-circle"><span id="sec-counter">0</span></div>
             <button class="tool-btn" id="breathBtn" onclick="startBreathing()" style="background:var(--breath); color:white; padding:5px 15px;">Başlat</button>
-        </div>
-
-        <div class="exercise-box" style="background: #fff5f5; border-color: #fed7d7;">
-            <div id="eye-instruction" style="font-weight:bold; color:var(--eye); font-size:12px;">Göz Egzersizi</div>
-            <div id="eye-canvas-box"><div id="eye-dot"></div></div>
-            <button class="tool-btn" id="eyeBtn" onclick="startEyeExercise()" style="background:var(--eye); color:white; padding:5px 15px;">Başlat</button>
         </div>
 
         <div class="memory-section">
             <label style="font-size: 12px; font-weight: bold; color: var(--music);">🎵 Şarkı Adı & Linki</label>
             <input type="text" id="songName" class="memory-input" placeholder="Şarkı İsmi">
-            <input type="text" id="songUrl" class="memory-input" placeholder="Link (https://...)">
-            
-            <label style="font-size: 12px; font-weight: bold; color: var(--eye); margin-top:10px; display:block;">📸 Anı Fotoğrafı</label>
-            <div class="photo-controls">
-                <label for="photoInput" class="photo-btn" style="background:#eee;">Seç/Değiştir</label>
-                <button onclick="removePhoto()" class="photo-btn" style="background:#ffdada; color:#ff4d4d;">Fotoğrafı Kaldır</button>
-            </div>
+            <input type="text" id="songUrl" class="memory-input" placeholder="Link (Spotify/Youtube)">
+            <label style="font-size: 12px; font-weight: bold; color: var(--eye); margin-top:10px; display:block;">📸 Anı Fotoğrafı (Akıllı Boyutlandırma)</label>
+            <label for="photoInput" class="photo-btn">Fotoğraf Seç</label>
             <input type="file" id="photoInput" accept="image/*" style="display:none;" onchange="handlePhoto(this)">
             <img id="photo-preview" src="" style="width:100%; border-radius:10px; margin-top:10px; display:none;">
         </div>
@@ -125,12 +117,12 @@
         </div>
 
         <div style="text-align:left; font-size:12px; font-weight:bold; margin-bottom:10px;">
-            Stres: <span id="stressLabel">(0)</span>
+            Stres: <span id="stressLabel">Harikayım (0)</span>
             <input type="range" id="stressRange" min="0" max="10" value="0" oninput="updateStress(this.value)" style="width:100%; accent-color:#333;">
         </div>
 
-        <div id="habitList" class="draw-tools" style="grid-template-columns: repeat(3, 1fr); gap:5px; margin:10px 0;"></div>
-        <div style="display:flex; gap:5px;"><input type="text" id="newHabitInput" placeholder="Alışkanlık..." style="flex:1; border-radius:10px; border:1px solid #eee; padding:8px;"> <button onclick="addNewHabit()" style="background:var(--accent); color:white; border:none; border-radius:10px; padding:0 10px;">+</button></div>
+        <div id="habitList" class="draw-tools" style="grid-template-columns: repeat(3, 1fr); gap:5px;"></div>
+        <div style="display:flex; gap:5px; margin-top:10px;"><input type="text" id="newHabitInput" placeholder="Yeni Alışkanlık..." style="flex:1; border-radius:10px; border:1px solid #eee; padding:8px;"> <button onclick="addNewHabit()" style="background:var(--accent); color:white; border:none; border-radius:10px; padding:0 10px;">+</button></div>
 
         <textarea id="note" maxlength="2000" placeholder="Bugünün notu (Maks 2000 karakter)..."></textarea>
         <button id="save-btn" onclick="saveData()">Günü Mühürle</button>
@@ -139,7 +131,7 @@
 
 <script>
     const canvas = document.getElementById('paintCanvas'); const ctx = canvas.getContext('2d');
-    let painting = false; let currentTool = 'sulu'; let undoStack = [];
+    let painting = false; let currentTool = 'sulu'; let undoStack = []; let redoStack = [];
     let activeEmos = {}; let selectedWeather = "✨"; let breathDone = false; let eyeDone = false;
     let base64Photo = "";
 
@@ -147,8 +139,11 @@
     function playTick(f, d) { const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(0.05, audioCtx.currentTime); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+d); }
 
     function setTool(t) { currentTool=t; document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active')); document.getElementById('btn-'+t)?.classList.add('active'); }
-    function saveState() { if(undoStack.length>20) undoStack.shift(); undoStack.push(canvas.toDataURL()); }
-    function undo() { if(undoStack.length>0) { let img=new Image(); img.src=undoStack.pop(); img.onload=()=> { ctx.clearRect(0,0,260,260); ctx.drawImage(img,0,0); } } }
+    
+    // Geri ve İleri Al Sistemi
+    function saveState() { if(undoStack.length>30) undoStack.shift(); undoStack.push(canvas.toDataURL()); redoStack = []; }
+    function undo() { if(undoStack.length>0) { redoStack.push(canvas.toDataURL()); let img=new Image(); img.src=undoStack.pop(); img.onload=()=> { ctx.clearRect(0,0,260,260); ctx.drawImage(img,0,0); } } }
+    function redo() { if(redoStack.length>0) { undoStack.push(canvas.toDataURL()); let img=new Image(); img.src=redoStack.pop(); img.onload=()=> { ctx.clearRect(0,0,260,260); ctx.drawImage(img,0,0); } } }
     function clearCanvas() { saveState(); ctx.clearRect(0,0,260,260); }
 
     function draw(e) {
@@ -171,7 +166,7 @@
     canvas.addEventListener('touchstart', (e)=>{ saveState(); painting=true; draw(e); e.preventDefault(); });
     canvas.addEventListener('touchmove', (e)=>{ draw(e); e.preventDefault(); });
 
-    // Fotoğraf Küçültme (Performans için)
+    // Akıllı Fotoğraf Boyutlandırma
     function handlePhoto(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -179,13 +174,13 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvasPhoto = document.createElement('canvas');
-                    const MAX_WIDTH = 600;
-                    const scale = MAX_WIDTH / img.width;
-                    canvasPhoto.width = MAX_WIDTH;
-                    canvasPhoto.height = img.height * scale;
-                    const ctxP = canvasPhoto.getContext('2d');
-                    ctxP.drawImage(img, 0, 0, canvasPhoto.width, canvasPhoto.height);
-                    base64Photo = canvasPhoto.toDataURL('image/jpeg', 0.7);
+                    const MAX_SIZE = 400; // Hafıza dostu boyut
+                    let w = img.width, h = img.height;
+                    if (w > h) { if (w > MAX_SIZE) { h *= MAX_SIZE / w; w = MAX_SIZE; } } 
+                    else { if (h > MAX_SIZE) { w *= MAX_SIZE / h; h = MAX_SIZE; } }
+                    canvasPhoto.width = w; canvasPhoto.height = h;
+                    canvasPhoto.getContext('2d').drawImage(img, 0, 0, w, h);
+                    base64Photo = canvasPhoto.toDataURL('image/jpeg', 0.6);
                     document.getElementById('photo-preview').src = base64Photo;
                     document.getElementById('photo-preview').style.display = 'block';
                 };
@@ -194,7 +189,6 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
-    function removePhoto() { base64Photo = ""; document.getElementById('photo-preview').style.display = 'none'; document.getElementById('photoInput').value = ""; }
 
     async function startBreathing() {
         const inst=document.getElementById('breath-instruction'); const circle=document.getElementById('breath-circle'); const counter=document.getElementById('sec-counter'); const globalT=document.getElementById('global-timer');
@@ -215,17 +209,20 @@
         dot.style.display='none'; eyeDone=true; showCel();
     }
 
-    const tips = { sunny: "Güneş kremi! ☀️", cloudy: "Hava yumuşak ⛅", moon: "Yıldızlara bak 🌙", rainy: "Yağmur sesi 🌧️", stormy: "Fırtına geçecek ⚡", windy: "Akışta kal ;) 🌬️" };
+    const tips = { sunny: "D Vitamini Zamanı! ☀️", cloudy: "Hava Yumuşak ⛅", moon: "Yıldızlara Bak 🌙", rainy: "Yağmur Sesi 🌧️", stormy: "Fırtına Geçecek ⚡", windy: "Rüzgarla Ak ;) 🌬️" };
     function setWeather(t,i) { selectedWeather=i; document.querySelectorAll('.weather-icon').forEach(v=>v.classList.toggle('active',v.innerText===i)); document.getElementById('weather-tip').innerText=tips[t]; }
     function toggleEmo(e) { const r=document.getElementById('r-'+e); if(activeEmos[e]){ delete activeEmos[e]; r.style.background="none"; } else { activeEmos[e]=50; r.style.background="#e8f0fe"; } }
     function updateEmo(e,v) { activeEmos[e]=v; }
-    function updateStress(v) { document.getElementById('stressLabel').innerText=`(${v})`; }
+    function updateStress(v) { 
+        let tx = ["Harikayım", "Ucundan stresli", "Ucundan stresli", "Az stresli", "Az stresli", "Nötr", "Giderek artıyor", "Giderek artıyor", "Stresliyim", "Stresliyim", "WOW!"];
+        document.getElementById('stressLabel').innerText=`${tx[v]} (${v})`; 
+    }
     function showCel() { const c=document.getElementById('celebration'); c.style.display='block'; setTimeout(()=>c.style.display='none',3000); }
 
     let habits = JSON.parse(localStorage.getItem('neuro_habits')) || ["Lenf Vuruşları"]; let activeHabits=[];
     function renderHabits() {
         const l=document.getElementById('habitList'); l.innerHTML="";
-        habits.forEach((h,i)=>{ const d=document.createElement('button'); d.className='tool-btn'; if(activeHabits.includes(h)) d.classList.add('active'); d.innerHTML=h; d.onclick=()=>{ if(activeHabits.includes(h)) activeHabits=activeHabits.filter(a=>a!==h); else activeHabits.push(h); renderHabits(); }; l.appendChild(d); });
+        habits.forEach((h,i)=>{ const d=document.createElement('button'); d.className='tool-btn'; if(activeHabits.includes(h)) d.classList.add('active'); d.innerHTML=h; d.onclick=()=>{ if(activeHabits.includes(h)) activeHabits=activeHabits.filter(a=>a!==h); else { activeHabits.push(h); showCel(); } renderHabits(); }; l.appendChild(d); });
     }
     function addNewHabit() { const v=document.getElementById('newHabitInput').value; if(v){ habits.push(v); localStorage.setItem('neuro_habits',JSON.stringify(habits)); renderHabits(); } }
 
@@ -235,14 +232,12 @@
     }
 
     function saveData() {
-        try {
-            const fh = [...activeHabits]; if(breathDone) fh.push("🧘 Nefes"); if(eyeDone) fh.push("👁️ Göz");
-            const entry={ id:Date.now(), time:new Date().toLocaleString('tr-TR'), stress:document.getElementById('stressRange').value, weather:selectedWeather, note:document.getElementById('note').value, image:canvas.toDataURL('image/webp', 0.5), habits:fh, emos:{...activeEmos}, song:document.getElementById('songName').value, songUrl:document.getElementById('songUrl').value, photo:base64Photo };
-            let logs = JSON.parse(localStorage.getItem('neuro_logs')) || []; logs.unshift(entry); localStorage.setItem('neuro_logs', JSON.stringify(logs));
-            renderLogs(); updateStats(); clearCanvas(); activeHabits=[]; breathDone=false; eyeDone=false; base64Photo=""; 
-            document.getElementById('note').value=""; document.getElementById('songName').value=""; document.getElementById('songUrl').value=""; document.getElementById('photo-preview').style.display="none";
-            renderHabits(); showCel();
-        } catch(e) { alert("Hafıza dolu! Lütfen eski kayıtları silin."); }
+        const fh = [...activeHabits]; if(breathDone) fh.push("🧘 Nefes"); if(eyeDone) fh.push("👁️ Göz");
+        const entry={ id:Date.now(), time:new Date().toLocaleString('tr-TR'), stress:document.getElementById('stressRange').value, weather:selectedWeather, note:document.getElementById('note').value, image:canvas.toDataURL('image/webp', 0.4), habits:fh, emos:{...activeEmos}, song:document.getElementById('songName').value, songUrl:document.getElementById('songUrl').value, photo:base64Photo };
+        let logs = JSON.parse(localStorage.getItem('neuro_logs')) || []; logs.unshift(entry); localStorage.setItem('neuro_logs', JSON.stringify(logs));
+        renderLogs(); updateStats(); clearCanvas(); activeHabits=[]; breathDone=false; eyeDone=false; base64Photo=""; 
+        document.getElementById('note').value=""; document.getElementById('songName').value=""; document.getElementById('songUrl').value=""; document.getElementById('photo-preview').style.display="none";
+        renderHabits(); showCel();
     }
 
     function renderLogs() {
@@ -250,15 +245,7 @@
         let logs = JSON.parse(localStorage.getItem('neuro_logs')) || [];
         logs.forEach(l=>{
             const card=document.createElement('div'); card.className="log-card";
-            card.innerHTML=`
-                <div onclick="deleteLog(${l.id})" style="position:absolute;top:10px;right:10px;cursor:pointer;color:#ccc;">×</div>
-                <img src="${l.image}" style="width:60px; float:right; border-radius:50%;">
-                <b>${l.time} ${l.weather}</b><br>
-                <small>Stres:${l.stress}/10 | ${l.habits.join(', ')}</small>
-                ${l.song ? `<br><a href="${l.songUrl}" target="_blank" class="log-song-link">♫ ${l.song}</a>` : ''}
-                ${l.photo ? `<img src="${l.photo}" class="log-photo">` : ''}
-                <div style="font-size:12px; margin-top:10px; white-space:pre-wrap; background:#f9f9f9; padding:8px; border-radius:8px;">${l.note}</div>
-            `;
+            card.innerHTML=`<div onclick="deleteLog(${l.id})" style="position:absolute;top:10px;right:10px;cursor:pointer;color:#ccc;">×</div><b>${l.time} ${l.weather}</b><br><small>Stres:${l.stress}/10 | ${l.habits.join(', ')}</small>${l.song ? `<br><a href="${l.songUrl}" target="_blank" style="color:var(--music); text-decoration:none; font-size:11px; font-weight:bold;">♫ ${l.song}</a>` : ''}${l.photo ? `<img src="${l.photo}" class="log-photo">` : ''}<div style="font-size:12px; margin-top:10px; white-space:pre-wrap; background:#f9f9f9; padding:8px; border-radius:8px;">${l.note}</div>`;
             g.appendChild(card);
         });
     }
@@ -266,7 +253,7 @@
 
     document.getElementById('userName').value=localStorage.getItem('neuro_username')||"";
     document.getElementById('userName').onchange=(e)=>localStorage.setItem('neuro_username',e.target.value);
-    setInterval(()=>document.getElementById('clock').innerText=new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}),1000);
+    setInterval(()=>document.getElementById('clock').innerText=new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}), 1000);
     renderHabits(); renderLogs(); updateStats();
 </script>
 </body>
